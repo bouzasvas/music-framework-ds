@@ -5,7 +5,7 @@ import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface Broker {
+public interface Broker extends Node {
     List<Consumer> registeredUsers = new ArrayList<>();
     List<Publisher> registeredPublishers = new ArrayList<>();
 
