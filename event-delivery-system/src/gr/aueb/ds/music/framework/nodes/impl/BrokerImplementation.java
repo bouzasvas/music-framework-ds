@@ -1,5 +1,6 @@
 package gr.aueb.ds.music.framework.nodes.impl;
 
+import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.NodeDetails;
@@ -15,9 +16,13 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BrokerImplementation extends NodeAbstractImplementation implements Broker {
+
+    List<Consumer> registeredUsers = new ArrayList<>();
+    List<Publisher> registeredPublishers = new ArrayList<>();
 
     public enum BrokerIndicator {
         TO_ADD,
@@ -47,6 +52,8 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
         // Init Server
         this.serverSocket = NetworkHelper.initServer(this.getNodeDetails().getPort());
+
+        LogHelper.info(this, PropertiesHelper.getProperty("broker.server.init"));
 
         // Continuous Listening for Requests
         while (true) {
@@ -87,12 +94,15 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
         getBrokers().add(this);
 
         this.updateNodes();
+        LogHelper.info(this, PropertiesHelper.getProperty("broker.connect.message"));
     }
 
     @Override
     public void disconnect() {
         this.brokerIndicator = BrokerIndicator.TO_DELETE;
         getBrokers().remove(this);
+
+        LogHelper.info(this, PropertiesHelper.getProperty("broker.disconnect"));
 
         // TODO - Check this
         // this.updateNodes();
@@ -112,7 +122,7 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
                     NetworkHelper.checkIfHostIsAlive(ip, port);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    System.out.println(String.format("Broker %s is not alive. It will be removed from Brokers List.", brokerImpl.getNodeDetails().getName()));
+                    LogHelper.error(this, String.format(PropertiesHelper.getProperty("broker.liveness.failed"), brokerImpl.getNodeDetails().getName()));
                     brokerImpl.disconnect();
                 }
             }
@@ -168,7 +178,8 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
             objectOutputStream.writeObject(this);
             masterBroker = (Broker) objectInputStream.readObject();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LogHelper.error(this, String.format(PropertiesHelper.getProperty("broker.master.node.required"), PropertiesHelper.getProperty("master.broker.port")));
+            System.exit(-100);
         }
 
         System.out.println("getMasterBroker() :: Method Returned Master Broker");
@@ -181,5 +192,21 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
     public void setBrokerIndicator(BrokerIndicator brokerIndicator) {
         this.brokerIndicator = brokerIndicator;
+    }
+
+    public List<Consumer> getRegisteredUsers() {
+        return registeredUsers;
+    }
+
+    public void setRegisteredUsers(List<Consumer> registeredUsers) {
+        this.registeredUsers = registeredUsers;
+    }
+
+    public List<Publisher> getRegisteredPublishers() {
+        return registeredPublishers;
+    }
+
+    public void setRegisteredPublishers(List<Publisher> registeredPublishers) {
+        this.registeredPublishers = registeredPublishers;
     }
 }

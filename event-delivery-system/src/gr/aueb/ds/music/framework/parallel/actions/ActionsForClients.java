@@ -1,5 +1,7 @@
 package gr.aueb.ds.music.framework.parallel.actions;
 
+import gr.aueb.ds.music.framework.helper.LogHelper;
+import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.network.Ping;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Consumer;
@@ -23,9 +25,10 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
     @Override
     public void run() {
         try {
+            LogHelper.info(this.broker, PropertiesHelper.getProperty("broker.connection.accept"));
             performServerClientCommunication();
         } catch (IOException | ClassNotFoundException ex) {
-            ex.printStackTrace();
+            LogHelper.error(this.broker, ex.getMessage());
         }
 
     }
