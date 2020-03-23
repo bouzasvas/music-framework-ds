@@ -24,6 +24,7 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
         TO_DELETE;
     }
 
+    private transient ServerSocket serverSocket;
     private BrokerIndicator brokerIndicator;
 
     public BrokerImplementation() {
@@ -41,7 +42,17 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
     @Override
     public void init() throws IOException {
+        // Connect Broker to Network
+        this.connect();
 
+        // Init Server
+        this.serverSocket = NetworkHelper.initServer(this.getNodeDetails().getPort());
+
+        // Continuous Listening for Requests
+        while (true) {
+            // Start a Thread for Each Client Connection
+            new Thread(new ActionsForClients(this, this.serverSocket.accept())).start();
+        }
     }
 
     @Override
@@ -72,22 +83,93 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
     // Node Methods
     @Override
     public void connect() {
+        this.brokerIndicator = BrokerIndicator.TO_ADD;
+        getBrokers().add(this);
 
+        this.updateNodes();
     }
 
     @Override
     public void disconnect() {
+        this.brokerIndicator = BrokerIndicator.TO_DELETE;
+        getBrokers().remove(this);
 
+        this.updateNodes();
     }
 
     @Override
     public void updateNodes() {
+        List<Broker> connectedBrokers = getBrokers();
 
+        // Check Connectivity with Brokers
+        for (Broker broker : connectedBrokers) {
+            if (!broker.equals(this)) {
+                BrokerImplementation brokerImpl = (BrokerImplementation) broker;
+                // TODO - Check if host is down (Ping Pong)
+                try (Socket testSocket = new Socket(brokerImpl.getNodeDetails().getIpAddress(), brokerImpl.getNodeDetails().getPort())) {
+                    // Broker is Down
+                } catch (IOException e) {
+                    System.out.println(String.format("Broker %s is not alive. It will be removed from Brokers List.", brokerImpl.getNodeDetails().getName()));
+                    brokerImpl.disconnect();
+                }
+            }
+        }
     }
 
     @Override
     public List<Broker> getBrokers() {
-        return null;
+        // If Broker is not Master Broker then Retrieve Brokers from Master
+        if (!this.isMasterBroker()) {
+            Broker masterBroker = this.getMasterBroker();
+            this.setBrokers(masterBroker.getBrokers());
+        }
+
+        return this.brokers;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return  true;
+        if (obj instanceof BrokerImplementation) {
+            BrokerImplementation other = (BrokerImplementation) obj;
+
+            NodeDetails thisNode = this.getNodeDetails();
+            NodeDetails otherNode = other.getNodeDetails();
+
+            return  thisNode.getName().equals(otherNode.getName()) &&
+                    thisNode.getIpAddress().equals(otherNode.getIpAddress()) &&
+                    thisNode.getPort() == otherNode.getPort();
+        }
+        else {
+            return false;
+        }
+    }
+
+    // Helper Methods
+    private boolean isMasterBroker() {
+        return this.getNodeDetails().getPort() == Integer.parseInt(PropertiesHelper.getProperty("master.broker.port"));
+    }
+
+    private Broker getMasterBroker() {
+        Broker masterBroker = null;
+
+        // Suppose Master Broker listens to localhost:8080
+        try (Socket socket =
+                     NetworkHelper.initConnection(
+                             InetAddress.getLoopbackAddress().getHostAddress(),
+                             Integer.parseInt(PropertiesHelper.getProperty("master.broker.port")))
+        ) {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+
+            objectOutputStream.writeObject(this);
+            masterBroker = (Broker) objectInputStream.readObject();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        System.out.println("getMasterBroker() :: Method Returned Master Broker");
+        return masterBroker;
     }
 
     public BrokerIndicator getBrokerIndicator() {
