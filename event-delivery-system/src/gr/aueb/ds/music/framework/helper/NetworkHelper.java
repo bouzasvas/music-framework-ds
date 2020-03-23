@@ -1,6 +1,11 @@
 package gr.aueb.ds.music.framework.helper;
 
+import gr.aueb.ds.music.framework.model.network.Ping;
+import gr.aueb.ds.music.framework.model.network.Pong;
+
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -32,5 +37,24 @@ public class NetworkHelper {
     public static Socket initConnection(String host, int port) throws IOException {
         Socket socket = new Socket(host, port);
         return socket;
+    }
+
+    public static boolean checkIfHostIsAlive(String host, int port) throws IOException {
+        Socket socket = NetworkHelper.initConnection(host, port);
+
+        ObjectOutputStream os = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream is = new ObjectInputStream(socket.getInputStream());
+
+        // Send a Ping Object & Wait for a Pong Response
+        os.writeObject(new Ping());
+        Pong pong = null;
+        try {
+            pong = (Pong) is.readObject();
+        } catch (ClassNotFoundException e) {
+            System.err.println("NetworkHelper :: checkIfHostIsAlive :: Error while Casting Received Object");
+        }
+        socket.close();
+
+        return pong != null && pong.getMsg().equals("pong");
     }
 }

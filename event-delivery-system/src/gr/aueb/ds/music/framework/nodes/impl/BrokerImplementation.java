@@ -94,7 +94,8 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
         this.brokerIndicator = BrokerIndicator.TO_DELETE;
         getBrokers().remove(this);
 
-        this.updateNodes();
+        // TODO - Check this
+        // this.updateNodes();
     }
 
     @Override
@@ -103,12 +104,14 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
         // Check Connectivity with Brokers
         for (Broker broker : connectedBrokers) {
-            if (!broker.equals(this)) {
-                BrokerImplementation brokerImpl = (BrokerImplementation) broker;
-                // TODO - Check if host is down (Ping Pong)
-                try (Socket testSocket = new Socket(brokerImpl.getNodeDetails().getIpAddress(), brokerImpl.getNodeDetails().getPort())) {
-                    // Broker is Down
+            BrokerImplementation brokerImpl = (BrokerImplementation) broker;
+            if (!brokerImpl.equals(this)) {
+                try {
+                    String ip = brokerImpl.getNodeDetails().getIpAddress();
+                    int port = brokerImpl.getNodeDetails().getPort();
+                    NetworkHelper.checkIfHostIsAlive(ip, port);
                 } catch (IOException e) {
+                    e.printStackTrace();
                     System.out.println(String.format("Broker %s is not alive. It will be removed from Brokers List.", brokerImpl.getNodeDetails().getName()));
                     brokerImpl.disconnect();
                 }

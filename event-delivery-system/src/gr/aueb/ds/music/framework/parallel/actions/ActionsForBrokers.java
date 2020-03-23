@@ -20,19 +20,19 @@ public class ActionsForBrokers extends ActionImplementation implements Action<Br
             // Send Existing Master Broker
             this.objectOutputStream.writeObject(this.broker);
 
-            if (!this.broker.getBrokers().contains(clientBroker)) {
-                // Update Master Broker Internal Brokers list
-                if (clientBroker.getBrokerIndicator().equals(BrokerImplementation.BrokerIndicator.TO_ADD)) {
+            // Update Master Broker Internal Brokers list
+            if (clientBroker.getBrokerIndicator().equals(BrokerImplementation.BrokerIndicator.TO_ADD)) {
+                if (!this.broker.getBrokers().contains(clientBroker)) {
                     this.broker.getBrokers().add(clientBroker);
-                } else if (clientBroker.getBrokerIndicator().equals(BrokerImplementation.BrokerIndicator.TO_DELETE)) {
-                    this.broker.getBrokers().remove(clientBroker);
                 }
+            } else if (clientBroker.getBrokerIndicator().equals(BrokerImplementation.BrokerIndicator.TO_DELETE)) {
+                this.broker.getBrokers().remove(clientBroker);
             }
+
 
         } catch (IOException e) {
             System.err.println("ActionsForBrokers :: act :: Error while Reading from Broker Client");
-        }
-        finally {
+        } finally {
             try {
                 this.socket.close();
             } catch (IOException e) {
