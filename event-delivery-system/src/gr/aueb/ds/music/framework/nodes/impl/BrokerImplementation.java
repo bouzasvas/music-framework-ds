@@ -121,7 +121,6 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
                     int port = brokerImpl.getNodeDetails().getPort();
                     NetworkHelper.checkIfHostIsAlive(ip, port);
                 } catch (IOException e) {
-                    e.printStackTrace();
                     LogHelper.error(this, String.format(PropertiesHelper.getProperty("broker.liveness.failed"), brokerImpl.getNodeDetails().getName()));
                     brokerImpl.disconnect();
                 }
