@@ -74,6 +74,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
             LogHelper.userInputWithColor(ConsoleColors.BLUE_BOLD, PropertiesHelper.getProperty("consumer.menu.choose.artist"));
 
             artistName = scanner.nextLine();
+            if (artistName.equals("-1")) break;
             this.artistName = new ArtistName(artistName, true);
 
             // Make the Connection
