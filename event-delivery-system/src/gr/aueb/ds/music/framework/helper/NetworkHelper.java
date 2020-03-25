@@ -1,5 +1,6 @@
 package gr.aueb.ds.music.framework.helper;
 
+import gr.aueb.ds.music.framework.model.network.Connection;
 import gr.aueb.ds.music.framework.model.network.Ping;
 import gr.aueb.ds.music.framework.model.network.Pong;
 
@@ -37,6 +38,15 @@ public class NetworkHelper {
     public static Socket initConnection(String host, int port) throws IOException {
         Socket socket = new Socket(host, port);
         return socket;
+    }
+
+    public static <T,U> U doObjectRequest(Connection connection, T requestObject) throws IOException, ClassNotFoundException {
+        ObjectOutputStream os = connection.getOs();
+        ObjectInputStream is = connection.getIs();
+
+        os.writeObject(requestObject);
+
+        return (U) is.readObject();
     }
 
     public static boolean checkIfHostIsAlive(String host, int port) throws IOException {

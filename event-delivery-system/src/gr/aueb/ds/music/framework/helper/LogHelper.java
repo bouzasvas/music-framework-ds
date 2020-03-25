@@ -70,9 +70,9 @@ public class LogHelper {
     private static void info(NodeAbstractImplementation node, String pattern, String message) {
         String output = String.format(pattern, node.getNodeDetails().getName(), message);
 
-        System.out.println(String.join("", Collections.nCopies(output.length(), "#")));
-        System.out.println(output);
-        System.out.println(String.join("", Collections.nCopies(output.length(), "#")));
+        System.out.println(ConsoleColors.RESET + String.join("", Collections.nCopies(output.length(), "#")));
+        System.out.println(ConsoleColors.RESET + output);
+        System.out.println(ConsoleColors.RESET + String.join("", Collections.nCopies(output.length(), "#")));
     }
 
     private static void error(NodeAbstractImplementation node, String pattern, String message) {
@@ -84,8 +84,8 @@ public class LogHelper {
             output = String.format(pattern, message);
         }
 
-        System.err.println(String.join("", Collections.nCopies(output.length(), "#")));
-        System.err.println(output);
-        System.err.println(String.join("", Collections.nCopies(output.length(), "#")));
+        System.err.println(ConsoleColors.RED_BOLD + String.join("", Collections.nCopies(output.length(), "#")));
+        System.err.println(ConsoleColors.RED_BOLD + output);
+        System.err.println(ConsoleColors.RED_BOLD + String.join("", Collections.nCopies(output.length(), "#")));
     }
 }

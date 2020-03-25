@@ -48,7 +48,7 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
         return this.brokers;
     }
 
-    private boolean isMasterBroker() {
+    public boolean isMasterBroker() {
         return this.getNodeDetails().getPort() == Integer.parseInt(PropertiesHelper.getProperty("master.broker.port"));
     }
 
@@ -65,6 +65,7 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
             objectOutputStream.writeObject(this);
             masterBroker = (Broker) objectInputStream.readObject();
         } catch (Exception ex) {
+            ex.printStackTrace();
             LogHelper.error(String.format(PropertiesHelper.getProperty("broker.master.node.required"), masterBrokerIp, masterBrokerPort));
             System.exit(SystemExitCodes.MASTER_NOT_FOUND_ERROR.getCode());
         }

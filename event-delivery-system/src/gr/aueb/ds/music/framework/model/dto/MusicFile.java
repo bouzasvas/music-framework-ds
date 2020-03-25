@@ -72,12 +72,7 @@ public class MusicFile implements Serializable {
 
     @Override
     public String toString() {
-        return "MusicFile{" +
-                "trackName='" + trackName + '\'' +
-                ", artistName='" + artistName + '\'' +
-                ", albumInfo='" + albumInfo + '\'' +
-                ", genre='" + genre + '\'' +
-                ", musicFileExtract (length) = " + (this.musicFileExtract != null ? "" + this.musicFileExtract.length : "" + 0) +
-                '}';
+        String pattern = "%s - %s :: (%s)";
+        return String.format(pattern, this.artistName, this.trackName, this.albumInfo);
     }
 }

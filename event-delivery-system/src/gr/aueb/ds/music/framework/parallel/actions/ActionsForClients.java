@@ -16,6 +16,7 @@ import gr.aueb.ds.music.framework.parallel.actions.node.Action;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForBrokers;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForConsumers;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForPublishers;
+import gr.aueb.ds.music.framework.parallel.actions.request.ActionsForConsumerRequest;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -74,7 +75,7 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
 
             brokerAction.act(clientBroker);
         } else if (node instanceof Consumer) {
-            Action<Consumer> consumerAction = new ActionsForConsumers();
+            Action<Consumer> consumerAction = new ActionsForConsumers(this);
             Consumer consumer = (Consumer) node;
 
             consumerAction.act(consumer);
@@ -91,7 +92,7 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
 
         if (musicObject instanceof ArtistName) {
             ArtistName artistName = (ArtistName) musicObject;
-
+            new ActionsForConsumerRequest(this).handleRequest(artistName);
         }
         else if (musicObject instanceof MusicFile) {
             MusicFile musicFile = (MusicFile) musicObject;

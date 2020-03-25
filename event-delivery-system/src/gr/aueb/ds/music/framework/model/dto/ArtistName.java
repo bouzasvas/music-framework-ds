@@ -7,6 +7,7 @@ public class ArtistName implements MusicData<ArtistName> {
     private static final long serialVersionUID = -5133667647262845405L;
 
     private String artistName;
+    private boolean discoveryRequest;
 
     public ArtistName() {
     }
@@ -15,12 +16,25 @@ public class ArtistName implements MusicData<ArtistName> {
         this.artistName = artistName;
     }
 
+    public ArtistName(String artistName, boolean discoveryRequest) {
+        this.artistName = artistName;
+        this.discoveryRequest = discoveryRequest;
+    }
+
     public String getArtistName() {
         return artistName;
     }
 
     public void setArtistName(String artistName) {
         this.artistName = artistName;
+    }
+
+    public boolean isDiscoveryRequest() {
+        return discoveryRequest;
+    }
+
+    public void setDiscoveryRequest(boolean discoveryRequest) {
+        this.discoveryRequest = discoveryRequest;
     }
 
     @Override
