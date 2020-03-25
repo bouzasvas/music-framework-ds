@@ -69,6 +69,8 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         String artistName = "";
         // Init Consumer & Ask continuously for Songs
         while (!artistName.equals("-1")) {
+            clearConsole();
+
             LogHelper.userInputWithColor(ConsoleColors.BLUE_BOLD, PropertiesHelper.getProperty("consumer.menu.choose.artist"));
 
             artistName = scanner.nextLine();
@@ -99,6 +101,14 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         }
     }
 
+    private void clearConsole() {
+        try {
+            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private Integer promptUserForTrackNo(Scanner scanner, List<MusicFile> musicFiles) {
         int minimumAllowedNumber = 1;
         int maximumAllowedNumber = musicFiles.size();
@@ -111,7 +121,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
                 trackNo = Integer.parseInt(scanner.nextLine());
 
                 // Explicitly throw Exception when Number out of bounds
-                if (trackNo < maximumAllowedNumber || trackNo > maximumAllowedNumber) {
+                if (trackNo < minimumAllowedNumber || trackNo > maximumAllowedNumber) {
                     throw new NumberFormatException();
                 }
             }
@@ -128,11 +138,17 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         // Get Track Results
         List<MusicFile> musicFiles = this.getTrackResults();
 
+        LogHelper.userInputWithColor(ConsoleColors.YELLOW_BOLD,
+                String.format(
+                        PropertiesHelper.getProperty("consumer.retrieve.tracks.list.title"),
+                        this.artistName.getArtistName()),
+                true);
+
         IntStream.range(0, musicFiles.size())
                 .forEach(index -> {
                     MusicFile musicFile = musicFiles.get(index);
 
-                    LogHelper.userInputWithColor(ConsoleColors.YELLOW_BOLD, (index+1) + ". " + musicFile.toString(), true);
+                    LogHelper.userInputWithColor(ConsoleColors.YELLOW_BOLD, "\t" + (index+1) + ". " + musicFile.toString(), true);
                 });
 
         return musicFiles;
