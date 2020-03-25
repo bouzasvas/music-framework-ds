@@ -1,4 +1,4 @@
-package gr.aueb.ds.music.framework.parallel.actions;
+package gr.aueb.ds.music.framework.parallel.actions.node;
 
 import gr.aueb.ds.music.framework.nodes.api.Node;
 

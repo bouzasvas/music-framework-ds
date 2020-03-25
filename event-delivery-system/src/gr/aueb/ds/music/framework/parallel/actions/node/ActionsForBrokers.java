@@ -1,7 +1,9 @@
-package gr.aueb.ds.music.framework.parallel.actions;
+package gr.aueb.ds.music.framework.parallel.actions.node;
 
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.impl.BrokerImplementation;
+import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
+import gr.aueb.ds.music.framework.parallel.actions.node.Action;
 
 import java.io.IOException;
 

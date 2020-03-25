@@ -3,7 +3,7 @@ package gr.aueb.ds.music.framework.model.dto;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class ArtistName implements Serializable {
+public class ArtistName implements MusicData<ArtistName> {
     private static final long serialVersionUID = -5133667647262845405L;
 
     private String artistName;
@@ -21,6 +21,11 @@ public class ArtistName implements Serializable {
 
     public void setArtistName(String artistName) {
         this.artistName = artistName;
+    }
+
+    @Override
+    public ArtistName get() {
+        return this;
     }
 
     @Override
