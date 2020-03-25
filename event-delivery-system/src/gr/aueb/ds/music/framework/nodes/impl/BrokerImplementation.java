@@ -129,17 +129,6 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
     }
 
     @Override
-    public List<Broker> getBrokers() {
-        // If Broker is not Master Broker then Retrieve Brokers from Master
-        if (!this.isMasterBroker()) {
-            Broker masterBroker = this.getMasterBroker();
-            this.setBrokers(masterBroker.getBrokers());
-        }
-
-        return this.brokers;
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) return  true;
         if (obj instanceof BrokerImplementation) {
@@ -155,34 +144,6 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
         else {
             return false;
         }
-    }
-
-    // Helper Methods
-    private boolean isMasterBroker() {
-        return this.getNodeDetails().getPort() == Integer.parseInt(PropertiesHelper.getProperty("master.broker.port"));
-    }
-
-    private Broker getMasterBroker() {
-        Broker masterBroker = null;
-
-        // Suppose Master Broker listens to localhost:8080
-        try (Socket socket =
-                     NetworkHelper.initConnection(
-                             InetAddress.getLoopbackAddress().getHostAddress(),
-                             Integer.parseInt(PropertiesHelper.getProperty("master.broker.port")))
-        ) {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-
-            objectOutputStream.writeObject(this);
-            masterBroker = (Broker) objectInputStream.readObject();
-        } catch (Exception ex) {
-            LogHelper.error(this, String.format(PropertiesHelper.getProperty("broker.master.node.required"), PropertiesHelper.getProperty("master.broker.port")));
-            System.exit(-100);
-        }
-
-        System.out.println("getMasterBroker() :: Method Returned Master Broker");
-        return masterBroker;
     }
 
     public BrokerIndicator getBrokerIndicator() {
