@@ -1,3 +1,5 @@
+import gr.aueb.ds.music.framework.commons.SystemExitCodes;
+import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Consumer;
@@ -37,12 +39,12 @@ public class Main {
                     initPublisher();
                     break;
                 case "E":
-                    System.out.println(PropertiesHelper.getProperty("main.menu.exit.message"));
-                    System.exit(1);
+                    LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.exit.message"), true);
+                    System.exit(SystemExitCodes.USER_REQUEST.getCode());
                     break;
                 default:
-                    System.out.println(PropertiesHelper.getProperty("main.menu.not.available.option"));
-                    System.out.println(PropertiesHelper.getProperty("main.menu.empty.line"));
+                    LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.not.available.option"), true);
+                    LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.empty.line"), true);
                     break;
             }
         }
@@ -60,17 +62,17 @@ public class Main {
                     .append(LINE_SEPARATOR)
                 .append(PropertiesHelper.getProperty("main.menu.publisher"))
                     .append(LINE_SEPARATOR)
-                    .append(LINE_SEPARATOR)
-                .append(PropertiesHelper.getProperty("main.menu.user.choice"));
+                    .append(LINE_SEPARATOR);
 
-        System.out.println(sb.toString());
+        LogHelper.printMenuItem(sb.toString(), true);
+        LogHelper.printMenuItem((PropertiesHelper.getProperty("main.menu.user.choice")), false);
     }
 
     private static void initBroker() {
-        System.out.print(PropertiesHelper.getProperty("main.menu.broker.name"));
+        LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.broker.name"), true);
         String brokerName = userInput.nextLine();
 
-        System.out.print(PropertiesHelper.getProperty("main.menu.broker.port"));
+        LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.broker.port"), true);
         int port = userInput.nextInt();
 
         Broker broker = null;
@@ -79,12 +81,12 @@ public class Main {
         }
         catch (IOException ex) {
             System.err.println(String.format(PropertiesHelper.getProperty("main.init.broker.error"), port));
-            System.exit(-2);
+            System.exit(SystemExitCodes.INIT_BROKER_ERROR.getCode());
         }
     }
 
     private static void initConsumer() {
-        System.out.print(PropertiesHelper.getProperty("main.menu.consumer.name"));
+        LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.consumer.name"), false);
         String consumerName = userInput.nextLine();
 
         Consumer consumer;
@@ -92,15 +94,15 @@ public class Main {
             consumer = new ConsumerImplementation(consumerName);
         } catch (IOException ex){
             System.err.println(PropertiesHelper.getProperty("main.init.consumer.error"));
-            System.exit(-3);
+            System.exit(SystemExitCodes.INIT_CONSUMER_ERROR.getCode());
         }
     }
 
     private static void initPublisher() {
-        System.out.print(PropertiesHelper.getProperty("main.menu.publisher.name"));
+        LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.publisher.name"), true);
         String publisherName = userInput.nextLine();
 
-        System.out.print(PropertiesHelper.getProperty("main.menu.publisher.port"));
+        LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.publisher.port"), true);
         int port = userInput.nextInt();
 
         Publisher publisher;
@@ -109,7 +111,7 @@ public class Main {
         }
         catch (IOException ex) {
             System.err.println(String.format(PropertiesHelper.getProperty("main.init.publisher.error"), port));
-            System.exit(-4);
+            System.exit(SystemExitCodes.INIT_PUBLISHER_ERROR.getCode());
         }
     }
 }

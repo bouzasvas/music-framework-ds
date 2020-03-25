@@ -1,5 +1,7 @@
 package gr.aueb.ds.music.framework.helper;
 
+import gr.aueb.ds.music.framework.commons.SystemExitCodes;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -19,7 +21,7 @@ public class PropertiesHelper {
         }
         catch (IOException ex) {
             System.err.println("Could not load Properties file app.properties");
-            System.exit(-1);
+            System.exit(SystemExitCodes.INIT_APP_ERROR.getCode());
         }
     }
 }
