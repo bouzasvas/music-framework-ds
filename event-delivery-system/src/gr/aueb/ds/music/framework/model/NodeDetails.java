@@ -9,6 +9,9 @@ public class NodeDetails implements Serializable {
     private String ipAddress;
     private int port;
 
+    // For Publisher
+    private String[] artistRange;
+
     public String getName() {
         return name;
     }
@@ -31,5 +34,13 @@ public class NodeDetails implements Serializable {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String[] getArtistRange() {
+        return artistRange;
+    }
+
+    public void setArtistRange(String[] artistRange) {
+        this.artistRange = artistRange;
     }
 }

@@ -78,6 +78,7 @@ public class Main {
         Broker broker = null;
         try {
             broker = new BrokerImplementation(brokerName, port);
+            broker.init();
         }
         catch (IOException ex) {
             System.err.println(String.format(PropertiesHelper.getProperty("main.init.broker.error"), port));
@@ -92,6 +93,7 @@ public class Main {
         Consumer consumer;
         try {
             consumer = new ConsumerImplementation(consumerName);
+            consumer.init();
         } catch (IOException ex){
             System.err.println(PropertiesHelper.getProperty("main.init.consumer.error"));
             System.exit(SystemExitCodes.INIT_CONSUMER_ERROR.getCode());
@@ -105,9 +107,16 @@ public class Main {
         LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.publisher.port"), true);
         int port = userInput.nextInt();
 
+        LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.publisher.artist.start"), false);
+        String artistStart = userInput.next();
+
+        LogHelper.printMenuItem(PropertiesHelper.getProperty("main.menu.publisher.artist.end"), false);
+        String artistEnd = userInput.next();
+
         Publisher publisher;
         try {
-            publisher = new PublisherImplementation(publisherName, port);
+            publisher = new PublisherImplementation(publisherName, port, artistStart, artistEnd);
+            publisher.init();
         }
         catch (IOException ex) {
             System.err.println(String.format(PropertiesHelper.getProperty("main.init.publisher.error"), port));
