@@ -27,6 +27,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     protected ArtistName artistName;
 
     public ConsumerImplementation() {
+        super(true);
         this.nodeDetails = new NodeDetails();
     }
 

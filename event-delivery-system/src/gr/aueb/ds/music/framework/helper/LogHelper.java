@@ -19,6 +19,12 @@ public class LogHelper {
         else LogHelper.info(message);
     }
 
+    public static void errorWithParams(Node node, String pattern, String... params) {
+        if (node instanceof Broker) LogHelper.errorWithParams((Broker) node, pattern, params);
+        else if (node instanceof Publisher) LogHelper.errorWithParams((Publisher) node, pattern, params);
+        else if (node instanceof Consumer) LogHelper.errorWithParams((Consumer) node, pattern, params);
+    }
+
     public static void info(String message) {
         System.out.println(message);
     }
@@ -87,8 +93,12 @@ public class LogHelper {
         LogHelper.error((NodeAbstractImplementation) consumer, output, message);
     }
 
+    public static void errorWithParams(Consumer consumer, String pattern, String... params) {
+        String formattedMsg = String.format(pattern, params);
+        LogHelper.error(consumer, formattedMsg);
+    }
 
-
+    // For All
     private static void info(NodeAbstractImplementation node, String pattern, String message) {
         String output = String.format(pattern, node.getNodeDetails().getName(), message);
 

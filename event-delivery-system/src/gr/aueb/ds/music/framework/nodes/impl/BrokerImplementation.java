@@ -35,6 +35,7 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
     private BrokerIndicator brokerIndicator;
 
     public BrokerImplementation() {
+        super(true);
         this.nodeDetails = new NodeDetails();
     }
 
@@ -149,27 +150,6 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
         // Better not doing this because of endless loop
         // this.updateNodes();
-    }
-
-    @Override
-    // TODO -- Implement Timer
-    public void updateNodes() {
-        List<Broker> connectedBrokers = getBrokers();
-
-        // Check Connectivity with Brokers
-        for (Broker broker : connectedBrokers) {
-            BrokerImplementation brokerImpl = (BrokerImplementation) broker;
-            if (!brokerImpl.equals(this)) {
-                try {
-                    String ip = brokerImpl.getNodeDetails().getIpAddress();
-                    int port = brokerImpl.getNodeDetails().getPort();
-                    NetworkHelper.checkIfHostIsAlive(ip, port);
-                } catch (IOException e) {
-                    LogHelper.errorWithParams(this, PropertiesHelper.getProperty("broker.liveness.failed"), brokerImpl.getNodeDetails().getName());
-                    brokerImpl.disconnect();
-                }
-            }
-        }
     }
 
     public BrokerIndicator getBrokerIndicator() {

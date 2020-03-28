@@ -20,6 +20,7 @@ public class PublisherImplementation extends NodeAbstractImplementation implemen
     protected Socket socket;
 
     public PublisherImplementation() throws IOException {
+        super(true);
         this.nodeDetails = new NodeDetails();
     }
 

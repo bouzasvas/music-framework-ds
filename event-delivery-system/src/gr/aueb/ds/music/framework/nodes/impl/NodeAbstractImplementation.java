@@ -7,20 +7,79 @@ import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.NodeDetails;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Node;
+import gr.aueb.ds.music.framework.nodes.api.Publisher;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public abstract class NodeAbstractImplementation implements Node, Serializable {
-    private static final long serialVersionUID = 5792977548048762220L;
+    private final static long serialVersionUID = 5792977548048762220L;
+
+    private final static long ONE_MINUTE_MILLIS = 60000;
 
     protected List<Broker> brokers = new ArrayList<>();
     protected NodeDetails nodeDetails;
+
+    public NodeAbstractImplementation() { }
+
+    public NodeAbstractImplementation(boolean enableTimer) {
+        if (enableTimer) {
+            // Enable Timer after 1 Minute of Initial Execution
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MINUTE, 2);
+
+            Date date = cal.getTime();
+            new Timer().scheduleAtFixedRate(new UpdateNodesTimerTask(), date, ONE_MINUTE_MILLIS);
+        }
+    }
+
+    @Override
+    public void updateNodes() {
+        List<Broker> connectedBrokers = getBrokers();
+
+        List<Broker> brokersToBeRemoved = new ArrayList<>();
+
+        // Check Connectivity with Brokers
+        for (Broker broker : connectedBrokers) {
+            BrokerImplementation brokerImpl = (BrokerImplementation) broker;
+            if (!brokerImpl.equals(this)) {
+                try {
+                    String ip = brokerImpl.getNodeDetails().getIpAddress();
+                    int port = brokerImpl.getNodeDetails().getPort();
+                    NetworkHelper.checkIfHostIsAlive(ip, port);
+                } catch (IOException e) {
+                    LogHelper.errorWithParams(this, PropertiesHelper.getProperty("broker.liveness.failed"), brokerImpl.getNodeDetails().getName());
+                    brokersToBeRemoved.add(broker);
+                }
+            }
+        }
+
+        // TODO -- Check connectivity with Publishers & Consumers - Implement Disconnect methods
+        if (this instanceof Broker) {
+            // Check Connectivity with Publishers
+
+
+            // Check Connectivity with Consumers
+        }
+
+        brokersToBeRemoved.forEach(Broker::disconnect);
+    }
+
+    @Override
+    public List<Broker> getBrokers() {
+        // If Broker is not Master Broker then Retrieve Brokers from Master
+        if (!this.isMasterBroker()) {
+            Broker masterBroker = this.getMasterBroker();
+            this.setBrokers(masterBroker.getBrokers());
+        }
+
+        return this.brokers;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -40,32 +99,7 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
         }
     }
 
-    // Getters & Setters
-
-    public void setBrokers(List<Broker> brokers) {
-        this.brokers = brokers;
-    }
-
-    public NodeDetails getNodeDetails() {
-        return nodeDetails;
-    }
-
-    public void setNodeDetails(NodeDetails nodeDetails) {
-        this.nodeDetails = nodeDetails;
-    }
-
     // Helper Methods
-    @Override
-    public List<Broker> getBrokers() {
-        // If Broker is not Master Broker then Retrieve Brokers from Master
-        if (!this.isMasterBroker()) {
-            Broker masterBroker = this.getMasterBroker();
-            this.setBrokers(masterBroker.getBrokers());
-        }
-
-        return this.brokers;
-    }
-
     public boolean isMasterBroker() {
         return this.getNodeDetails().getPort() == Integer.parseInt(PropertiesHelper.getProperty("master.broker.port"));
     }
@@ -90,5 +124,29 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
 
 //        System.out.println("getMasterBroker() :: Method Returned Master Broker");
         return masterBroker;
+    }
+
+    // Getters & Setters
+    public void setBrokers(List<Broker> brokers) {
+        this.brokers = brokers;
+    }
+
+    public NodeDetails getNodeDetails() {
+        return nodeDetails;
+    }
+
+    public void setNodeDetails(NodeDetails nodeDetails) {
+        this.nodeDetails = nodeDetails;
+    }
+
+    // Nested TimerTask class
+    private class UpdateNodesTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            LogHelper.info(NodeAbstractImplementation.this,
+                    String.format(PropertiesHelper.getProperty("nodes.timer.executed"), new Date().toString()));
+
+            updateNodes();
+        }
     }
 }
