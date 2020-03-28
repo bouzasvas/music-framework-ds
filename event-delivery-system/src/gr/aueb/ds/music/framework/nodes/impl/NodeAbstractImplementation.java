@@ -22,6 +22,24 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
     protected List<Broker> brokers = new ArrayList<>();
     protected NodeDetails nodeDetails;
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return  true;
+        if (obj instanceof NodeAbstractImplementation) {
+            NodeAbstractImplementation other = (NodeAbstractImplementation) obj;
+
+            NodeDetails thisNode = this.getNodeDetails();
+            NodeDetails otherNode = other.getNodeDetails();
+
+            return  thisNode.getName().equals(otherNode.getName()) &&
+                    thisNode.getIpAddress().equals(otherNode.getIpAddress()) &&
+                    thisNode.getPort() == otherNode.getPort();
+        }
+        else {
+            return false;
+        }
+    }
+
     // Getters & Setters
 
     public void setBrokers(List<Broker> brokers) {

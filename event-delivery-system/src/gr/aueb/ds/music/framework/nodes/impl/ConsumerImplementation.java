@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.framework.nodes.impl;
 
 import gr.aueb.ds.music.framework.commons.SystemExitCodes;
+import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
@@ -29,11 +30,9 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         this.nodeDetails = new NodeDetails();
     }
 
-    public ConsumerImplementation(String name) throws IOException {
+    public ConsumerImplementation(String name) {
         this();
         this.nodeDetails.setName(name);
-
-        this.init();
     }
 
     @Override
@@ -202,20 +201,28 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     }
 
     private List<MusicFile> getTrackResults() throws Exception {
-        List<MusicFile> musicFiles;
-        try {
-            musicFiles = NetworkHelper.doObjectRequest(this.connection, this.artistName);
-        } catch (Exception ex) {
+        List<MusicFile> musicFiles = this.retrieveMusicFiles();
 
+        return Optional
+                .ofNullable(musicFiles)
+                .orElseThrow(() -> new Exception(PropertiesHelper.getProperty("consumer.retrieve.tracks.list.empty")));
+    }
+
+    private List<MusicFile> retrieveMusicFiles() throws Exception {
+        List<MusicFile> musicFiles = null;
+        try {
+            Object response = NetworkHelper.doObjectRequest(this.connection, this.artistName);
+
+            if (response instanceof List) musicFiles = (List<MusicFile>) response;
+            else if (response instanceof PublisherNotFoundException) throw (PublisherNotFoundException) response;
+        } catch (IOException | ClassNotFoundException ex) {
             throw new Exception(String.format(
                     PropertiesHelper.getProperty("consumer.retrieve.tracks.list.failed"),
                     this.connectedBroker.getNodeDetails().getName())
             );
         }
 
-        return Optional
-                .ofNullable(musicFiles)
-                .orElseThrow(() -> new Exception(PropertiesHelper.getProperty("consumer.retrieve.tracks.list.empty")));
+        return musicFiles;
     }
 
     private boolean isAppropriateBrokerMaster() {

@@ -17,6 +17,7 @@ import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForBrokers;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForConsumers;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForPublishers;
 import gr.aueb.ds.music.framework.parallel.actions.request.ActionsForConsumerRequest;
+import gr.aueb.ds.music.framework.parallel.actions.request.ActionsForConsumerRequestInPublisher;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -31,10 +32,14 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
         super(broker, socket);
     }
 
+    public ActionsForClients(Publisher publisher, Socket socket) {
+        super(publisher, socket);
+    }
+
     @Override
     public void run() {
         try {
-            LogHelper.info(this.broker, PropertiesHelper.getProperty("broker.connection.accept"));
+            LogHelper.info((this.broker != null ? this.broker : this.publisher), PropertiesHelper.getProperty("broker.connection.accept"));
             performServerClientCommunication();
         } catch (IOException | ClassNotFoundException ex) {
             LogHelper.error(this.broker, ex.getMessage());
@@ -80,7 +85,7 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
 
             consumerAction.act(consumer);
         } else if (node instanceof Publisher) {
-            Action<Publisher> publisherAction = new ActionsForPublishers();
+            Action<Publisher> publisherAction = new ActionsForPublishers(this);
             Publisher publisher = (Publisher) node;
 
             publisherAction.act(publisher);
@@ -92,7 +97,14 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
 
         if (musicObject instanceof ArtistName) {
             ArtistName artistName = (ArtistName) musicObject;
-            new ActionsForConsumerRequest(this).handleRequest(artistName);
+
+            // Request - Response based on Request source (Publisher / Broker)
+            if (this.publisher == null) {
+                new ActionsForConsumerRequest(this).handleRequest(artistName);
+            }
+            else {
+                new ActionsForConsumerRequestInPublisher(this).handleRequest(artistName);
+            }
         }
         else if (musicObject instanceof MusicFile) {
             MusicFile musicFile = (MusicFile) musicObject;

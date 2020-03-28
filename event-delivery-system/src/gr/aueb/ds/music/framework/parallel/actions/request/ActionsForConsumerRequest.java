@@ -1,5 +1,6 @@
 package gr.aueb.ds.music.framework.parallel.actions.request;
 
+import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
@@ -8,7 +9,6 @@ import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ActionsForConsumerRequest extends ActionImplementation implements RequestAction<ArtistName> {
@@ -25,29 +25,17 @@ public class ActionsForConsumerRequest extends ActionImplementation implements R
             findTheAppropriateBroker(request);
         }
         else {
-            // Dummy Return Songs List
-            List<MusicFile> musicFiles = new ArrayList<>();
-
-            MusicFile mf1 = new MusicFile();
-            mf1.setArtistName("Pantelis Pantelidis");
-            mf1.setTrackName("De Tairiazete soy lew");
-            mf1.setAlbumInfo("Alkoolikes Oi Nyxtes");
-            mf1.setGenre("Skyladika");
-
-            MusicFile mf2 = new MusicFile();
-            mf2.setArtistName("Pantelis Pantelidis");
-            mf2.setTrackName("Skoypise ta podia soy kai perase");
-            mf2.setAlbumInfo("Ouranio Toxo");
-            mf2.setGenre("Skyladika");
-
-            musicFiles.add(mf1);
-            musicFiles.add(mf2);
-
+            // Get the music files from the appropriate Publisher
             try {
+                List<MusicFile> musicFiles = this.broker.pull(request);
+
                 this.objectOutputStream.writeObject(musicFiles);
+            } catch (PublisherNotFoundException e) {
+                LogHelper.errorWithParams(this.broker, PropertiesHelper.getProperty("broker.publisher.not.found"), request.getArtistName());
+
+                sendErrorResponseToConsumer(e);
             } catch (IOException e) {
-                // TODO
-                e.printStackTrace();
+                LogHelper.error(this.broker, PropertiesHelper.getProperty("broker.consumer.send.music.list.failed"));
             }
         }
     }
@@ -71,6 +59,14 @@ public class ActionsForConsumerRequest extends ActionImplementation implements R
         }
         catch (IOException ex) {
             LogHelper.error(this.broker, String.format(PropertiesHelper.getProperty("consumer.request.artistName.error"), suitableBroker, request));
+        }
+    }
+
+    private void sendErrorResponseToConsumer(PublisherNotFoundException e) {
+        try {
+            this.objectOutputStream.writeObject(e);
+        } catch (IOException ex) {
+            LogHelper.error(broker, PropertiesHelper.getProperty("broker.consumer.send.error.failed"));
         }
     }
 

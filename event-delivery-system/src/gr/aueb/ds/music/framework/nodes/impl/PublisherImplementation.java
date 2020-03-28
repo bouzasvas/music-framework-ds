@@ -1,19 +1,22 @@
 package gr.aueb.ds.music.framework.nodes.impl;
 
+import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
+import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.NodeDetails;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.Value;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Publisher;
+import gr.aueb.ds.music.framework.parallel.actions.ActionsForClients;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 
-public class PublisherImplementation implements Publisher {
+public class PublisherImplementation extends NodeAbstractImplementation implements Publisher {
 
-    protected NodeDetails nodeDetails;
+    protected ServerSocket serverSocket;
     protected Socket socket;
 
     public PublisherImplementation() throws IOException {
@@ -25,23 +28,25 @@ public class PublisherImplementation implements Publisher {
         this.nodeDetails.setName(name);
         this.nodeDetails.setIpAddress(NetworkHelper.getCurrentIpAddress());
         this.nodeDetails.setPort(port);
+    }
 
-        this.init();
+    public PublisherImplementation(String name, int port, String... artistRange) throws IOException {
+        this(name, port);
+        this.nodeDetails.setArtistRange(artistRange);
     }
 
     @Override
-    public List<Broker> getBrokers() {
-        return null;
-    }
+    public void init() throws IOException {
+        this.connect();
 
-    @Override
-    public void init() {
-
+        // Init Server for Brokers-Publisher communication
+        this.initServer();
     }
 
     @Override
     public void connect() {
-
+        // Connect with Master Broker and get brokers list
+        this.getBrokers();
     }
 
     @Override
@@ -69,12 +74,14 @@ public class PublisherImplementation implements Publisher {
 
     }
 
-    public NodeDetails getNodeDetails() {
-        return nodeDetails;
-    }
+    private void initServer() throws IOException {
+        this.serverSocket = new ServerSocket(this.getNodeDetails().getPort());
 
-    public void setNodeDetails(NodeDetails nodeDetails) {
-        this.nodeDetails = nodeDetails;
+        LogHelper.info(this, PropertiesHelper.getProperty("publisher.server.init"));
+
+        while (true) {
+            new Thread(new ActionsForClients(this, this.serverSocket.accept())).start();
+        }
     }
 
     public Socket getSocket() {
