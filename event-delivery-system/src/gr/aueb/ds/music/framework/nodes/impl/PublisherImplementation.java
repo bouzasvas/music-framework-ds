@@ -16,8 +16,8 @@ import java.net.Socket;
 
 public class PublisherImplementation extends NodeAbstractImplementation implements Publisher {
 
-    protected ServerSocket serverSocket;
-    protected Socket socket;
+    protected transient ServerSocket serverSocket;
+    protected transient Socket socket;
 
     public PublisherImplementation() throws IOException {
         super(true);
@@ -52,11 +52,6 @@ public class PublisherImplementation extends NodeAbstractImplementation implemen
 
     @Override
     public void disconnect() {
-
-    }
-
-    @Override
-    public void updateNodes() {
 
     }
 

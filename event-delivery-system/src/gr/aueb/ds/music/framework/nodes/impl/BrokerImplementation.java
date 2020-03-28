@@ -102,8 +102,8 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
                             String artistStart = artistRange[0];
                             String artistEnd = artistRange[1];
 
-                            return artistStart.compareTo(artistName.substring(0, 1)) <= 0
-                                    && artistEnd.compareTo(artistName.substring(0, 1)) >= 0;
+                            return artistStart.toLowerCase().compareTo(artistName.toLowerCase().substring(0, 1)) <= 0
+                                    && artistEnd.toLowerCase().compareTo(artistName.toLowerCase().substring(0, 1)) >= 0;
                         })
                         .findFirst()
                         .orElseThrow(PublisherNotFoundException::new);

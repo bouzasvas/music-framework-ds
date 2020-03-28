@@ -47,7 +47,7 @@ public class ActionsForConsumerRequestInPublisher extends ActionImplementation i
                     .filter(str -> !str.startsWith(".") && str.endsWith(".mp3"))
                     .map(this::mapToMusicFile)
                     .filter(Objects::nonNull)
-                    .filter(musicFile -> musicFile.getArtistName().contains(artist))
+                    .filter(musicFile -> musicFile.getArtistName().toLowerCase().contains(artist.toLowerCase()))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             LogHelper.errorWithParams(this.publisher, PropertiesHelper.getProperty("publisher.music.list.read.file.system"), MUSIC_FILES_DIR);

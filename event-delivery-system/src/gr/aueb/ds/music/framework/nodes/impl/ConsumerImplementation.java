@@ -165,11 +165,6 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 
     }
 
-    @Override
-    public void updateNodes() {
-
-    }
-
     private void findAppropriateBroker() {
         try {
             AbstractMap.SimpleEntry<String, Integer> masterBrokerIpPort = this.getMasterBrokerIpPort();
