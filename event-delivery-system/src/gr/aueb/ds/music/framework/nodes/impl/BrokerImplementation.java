@@ -74,8 +74,11 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
     public Publisher acceptConnection(Publisher publisher) {
         List<Publisher> registeredPublishers = this.getRegisteredPublishers();
 
-        if (!registeredPublishers.contains(publisher)) {
+        if (!(publisher.isPublisherDown() || registeredPublishers.contains(publisher))) {
             registeredPublishers.add(publisher);
+        }
+        else {
+            registeredPublishers.remove(publisher);
         }
 
         return publisher;
@@ -150,6 +153,32 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
         // Better not doing this because of endless loop
         // this.updateNodes();
+    }
+
+    @Override
+    public void updateNodes() {
+        super.updateNodes();
+
+        List<Publisher> publishersToBeRemoved = new ArrayList<>();
+        // Check Connectivity with Publishers
+        for (Publisher publisher : registeredPublishers) {
+            String publisherIp  = publisher.getNodeDetails().getIpAddress();
+            int publisherPort   = publisher.getNodeDetails().getPort();
+
+            try {
+                NetworkHelper.checkIfHostIsAlive(publisherIp, publisherPort);
+            } catch (IOException e) {
+                LogHelper.errorWithParams(this, PropertiesHelper.getProperty("broker.publisher.disconnected"), publisher.getNodeDetails().getName());
+                publishersToBeRemoved.add(publisher);
+            }
+        }
+        publishersToBeRemoved.forEach(Publisher::disconnect);
+
+        // TODO - Check Connectivity with Consumers
+        // Consumer are not registered in any list - Do we need them?
+        for (Consumer consumer : registeredUsers) {
+
+        }
     }
 
     public BrokerIndicator getBrokerIndicator() {

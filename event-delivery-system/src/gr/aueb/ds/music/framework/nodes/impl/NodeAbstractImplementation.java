@@ -46,25 +46,16 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
 
         // Check Connectivity with Brokers
         for (Broker broker : connectedBrokers) {
-            BrokerImplementation brokerImpl = (BrokerImplementation) broker;
-            if (!brokerImpl.equals(this)) {
+            if (!broker.equals(this)) {
                 try {
-                    String ip = brokerImpl.getNodeDetails().getIpAddress();
-                    int port = brokerImpl.getNodeDetails().getPort();
+                    String ip = broker.getNodeDetails().getIpAddress();
+                    int port = broker.getNodeDetails().getPort();
                     NetworkHelper.checkIfHostIsAlive(ip, port);
                 } catch (IOException e) {
-                    LogHelper.errorWithParams(this, PropertiesHelper.getProperty("broker.liveness.failed"), brokerImpl.getNodeDetails().getName());
+                    LogHelper.errorWithParams(this, PropertiesHelper.getProperty("broker.liveness.failed"), broker.getNodeDetails().getName());
                     brokersToBeRemoved.add(broker);
                 }
             }
-        }
-
-        // TODO -- Check connectivity with Publishers & Consumers - Implement Disconnect methods
-        if (this instanceof Broker) {
-            // Check Connectivity with Publishers
-
-
-            // Check Connectivity with Consumers
         }
 
         brokersToBeRemoved.forEach(Broker::disconnect);

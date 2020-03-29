@@ -7,4 +7,6 @@ public interface Publisher extends Node {
     Broker hashTopic(ArtistName artistName);
     void push(ArtistName artistName, Value value);
     void notifyFailure(Broker broker);
+
+    boolean isPublisherDown();
 }

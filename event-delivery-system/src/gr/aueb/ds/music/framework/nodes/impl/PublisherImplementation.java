@@ -19,6 +19,8 @@ public class PublisherImplementation extends NodeAbstractImplementation implemen
     protected transient ServerSocket serverSocket;
     protected transient Socket socket;
 
+    private boolean publisherIsDown;
+
     public PublisherImplementation() throws IOException {
         super(true);
         this.nodeDetails = new NodeDetails();
@@ -52,7 +54,11 @@ public class PublisherImplementation extends NodeAbstractImplementation implemen
 
     @Override
     public void disconnect() {
+        // Update Publisher Status
+        this.publisherIsDown = true;
 
+        // Update Brokers for Publisher Removal
+        this.getBrokers();
     }
 
     @Override
@@ -78,6 +84,14 @@ public class PublisherImplementation extends NodeAbstractImplementation implemen
         while (true) {
             new Thread(new ActionsForClients(this, this.serverSocket.accept())).start();
         }
+    }
+
+    public boolean isPublisherDown() {
+        return publisherIsDown;
+    }
+
+    public void setPublisherIsDown(boolean publisherIsDown) {
+        this.publisherIsDown = publisherIsDown;
     }
 
     public Socket getSocket() {

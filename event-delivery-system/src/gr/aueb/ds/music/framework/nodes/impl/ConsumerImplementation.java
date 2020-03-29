@@ -201,6 +201,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 
         return Optional
                 .ofNullable(musicFiles)
+                .filter(list -> !list.isEmpty())
                 .orElseThrow(() -> new Exception(PropertiesHelper.getProperty("consumer.retrieve.tracks.list.empty")));
     }
 
