@@ -27,6 +27,8 @@ public class ActionsForConsumers extends ActionImplementation implements Action<
                 .findFirst()
                 .orElse(null);
 
+        // TODO - Add Consumer to all Brokers?
+
         try {
             this.objectOutputStream.writeObject(masterBroker);
         } catch (IOException ex) {

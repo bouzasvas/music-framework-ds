@@ -15,6 +15,13 @@ public class MusicFile implements Serializable {
     public MusicFile() {
     }
 
+    public MusicFile(MusicFile musicFile) {
+        this.trackName  = musicFile.trackName;
+        this.artistName = musicFile.artistName;
+        this.albumInfo  = musicFile.albumInfo;
+        this.genre      = musicFile.genre;
+    }
+
     public String getTrackName() {
         return trackName;
     }

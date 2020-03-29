@@ -2,6 +2,7 @@ package gr.aueb.ds.music.framework.nodes.impl;
 
 import gr.aueb.ds.music.framework.commons.SystemExitCodes;
 import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
+import gr.aueb.ds.music.framework.helper.FileSystemHelper;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
@@ -15,7 +16,7 @@ import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Consumer;
 import gr.aueb.ds.music.framework.nodes.api.Node;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -59,7 +60,29 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 
     @Override
     public void playData(ArtistName artistName, Value value) {
-        // TODO -- Implement
+        List<byte[]> musicFileBytesList = new ArrayList<>();
+        try {
+            MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
+            musicFileBytesList.add(musicFile.getMusicFileExtract());
+
+            while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
+                musicFileBytesList.add(musicFile.getMusicFileExtract());
+            }
+
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            for (byte[] bytes : musicFileBytesList) {
+                byteArrayOutputStream.write(bytes);
+            }
+
+            MusicFile wholeFile = new MusicFile(value.getMusicFile());
+            wholeFile.setMusicFileExtract(byteArrayOutputStream.toByteArray());
+
+            FileSystemHelper.saveMusicFileToFileSystem(wholeFile);
+        } catch (IOException | ClassNotFoundException e) {
+            // TODO -- Logging
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -100,6 +123,16 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
             Value value = new Value(musicFiles.get(trackNo - 1));
             this.playData(this.artistName, value);
         }
+    }
+
+    @Override
+    public void connect() {
+        this.findAppropriateBroker();
+    }
+
+    @Override
+    public void disconnect() {
+
     }
 
     private void clearConsole() {
@@ -153,16 +186,6 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
                 });
 
         return musicFiles;
-    }
-
-    @Override
-    public void connect() {
-        this.findAppropriateBroker();
-    }
-
-    @Override
-    public void disconnect() {
-
     }
 
     private void findAppropriateBroker() {

@@ -3,6 +3,7 @@ package gr.aueb.ds.music.framework.nodes.api;
 import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
+import gr.aueb.ds.music.framework.model.network.Connection;
 import gr.aueb.ds.music.framework.nodes.impl.BrokerImplementation;
 
 import java.util.ArrayList;
@@ -16,4 +17,5 @@ public interface Broker extends Node {
     List<MusicFile> pull(ArtistName artistName) throws PublisherNotFoundException;
 
     BrokerImplementation.BrokerIndicator getBrokerIndicator();
+    Connection getPublisherConnection();
 }

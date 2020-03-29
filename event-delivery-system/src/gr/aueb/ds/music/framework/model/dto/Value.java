@@ -5,7 +5,7 @@ import gr.aueb.ds.music.framework.model.network.ObjectOverNetwork;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Value implements MusicData<MusicFile> {
+public class Value implements MusicData<Value> {
     private static final long serialVersionUID = 3514995194910638315L;
 
     private MusicFile musicFile;
@@ -26,8 +26,8 @@ public class Value implements MusicData<MusicFile> {
     }
 
     @Override
-    public MusicFile get() {
-        return this.musicFile;
+    public Value get() {
+        return this;
     }
 
     @Override

@@ -113,7 +113,7 @@ public class LogHelper {
              output = String.format(pattern, node.getNodeDetails().getName(), message);
         }
         else {
-            output = String.format(pattern, message);
+            output = String.format(pattern, "(null)", message);
         }
 
         System.err.println(ConsoleColors.RED_BOLD + String.join("", Collections.nCopies(output.length(), "#")));

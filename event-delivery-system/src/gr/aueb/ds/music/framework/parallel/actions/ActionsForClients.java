@@ -4,7 +4,7 @@ import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.MusicData;
-import gr.aueb.ds.music.framework.model.dto.MusicFile;
+import gr.aueb.ds.music.framework.model.dto.Value;
 import gr.aueb.ds.music.framework.model.network.ObjectOverNetwork;
 import gr.aueb.ds.music.framework.model.network.Ping;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
@@ -16,8 +16,7 @@ import gr.aueb.ds.music.framework.parallel.actions.node.Action;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForBrokers;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForConsumers;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForPublishers;
-import gr.aueb.ds.music.framework.parallel.actions.request.ActionsForConsumerRequest;
-import gr.aueb.ds.music.framework.parallel.actions.request.ActionsForConsumerRequestInPublisher;
+import gr.aueb.ds.music.framework.parallel.actions.request.*;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -106,10 +105,17 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
                 new ActionsForConsumerRequestInPublisher(this).handleRequest(artistName);
             }
         }
-        else if (musicObject instanceof MusicFile) {
-            MusicFile musicFile = (MusicFile) musicObject;
+        else if (musicObject instanceof Value) {
+            Value value = (Value) musicObject;
 
-            // TODO - Handle Music File Request
+            if (this.publisher == null) {
+                RequestAction<Value> requestAction = new ActionForTrackRequest(this);
+                requestAction.handleRequest(value);
+            }
+            else {
+                RequestAction<Value> requestAction = new ActionForTrackRequestInPublisher(this);
+                requestAction.handleRequest(value);
+            }
         }
     }
 }

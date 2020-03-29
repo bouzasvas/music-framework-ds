@@ -74,6 +74,8 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
     public Publisher acceptConnection(Publisher publisher) {
         List<Publisher> registeredPublishers = this.getRegisteredPublishers();
 
+        // TODO -- Organise Artists Name
+
         if (!(publisher.isPublisherDown() || registeredPublishers.contains(publisher))) {
             registeredPublishers.add(publisher);
         }
@@ -179,6 +181,11 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
         for (Consumer consumer : registeredUsers) {
 
         }
+    }
+
+    @Override
+    public Connection getPublisherConnection() {
+        return this.publisherConnection;
     }
 
     public BrokerIndicator getBrokerIndicator() {
