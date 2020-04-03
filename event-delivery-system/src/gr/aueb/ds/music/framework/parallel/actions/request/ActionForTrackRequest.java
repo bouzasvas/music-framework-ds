@@ -23,6 +23,7 @@ public class ActionForTrackRequest extends ActionImplementation implements Reque
             ObjectInputStream publisherConnectionIs = publisherConnection.getIs();
 
             MusicFile musicFile = NetworkHelper.doObjectRequest(publisherConnection, request);
+            this.objectOutputStream.writeObject(musicFile);
             while ((musicFile = (MusicFile)publisherConnectionIs.readObject()) != null) {
                 this.objectOutputStream.writeObject(musicFile);
             }
