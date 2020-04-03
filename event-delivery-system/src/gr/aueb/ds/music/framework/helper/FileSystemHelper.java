@@ -62,10 +62,12 @@ public class FileSystemHelper {
     }
 
     public static void saveMusicFileToFileSystem(MusicFile musicFile) throws IOException {
-        // TODO - Create Dir if not exists
-        String fileName = String.format(MUSIC_FILES_OUTPUT_DIR+"/"+musicFile.getTrackName().concat(".mp3"));
+        File outputDir = new File(MUSIC_FILES_OUTPUT_DIR);
+        outputDir.mkdir();
 
-        File savedFile = new File(fileName);
+        String fileName = musicFile.getTrackName().concat(".mp3");
+
+        File savedFile = new File(outputDir, fileName);
         try (FileOutputStream fos = new FileOutputStream(savedFile)) {
             fos.write(musicFile.getMusicFileExtract());
             fos.flush();
@@ -74,7 +76,7 @@ public class FileSystemHelper {
             throw ex;
         }
 
-        copyMp3MetadataToFile(fileName, musicFile);
+        copyMp3MetadataToFile(savedFile, musicFile);
     }
 
     private static List<String> getFilesFromFileSystem(Publisher publisher) {
@@ -101,7 +103,7 @@ public class FileSystemHelper {
             musicFile = new MusicFile();
 
             ID3v1 id3Tag = getRightId3Tag(song);
-            musicFile.setTrackName(songName.substring(0, songName.indexOf(".")));
+            musicFile.setTrackName(songName.substring(0, songName.lastIndexOf(".")));
             musicFile.setArtistName(id3Tag.getArtist());
             musicFile.setGenre(id3Tag.getGenreDescription());
             musicFile.setAlbumInfo(id3Tag.getAlbum());
@@ -112,9 +114,9 @@ public class FileSystemHelper {
         return musicFile;
     }
 
-    private static void copyMp3MetadataToFile(String fileName, MusicFile musicFile) {
+    private static void copyMp3MetadataToFile(File file, MusicFile musicFile) {
         try {
-            Mp3File mp3File = new Mp3File(fileName);
+            Mp3File mp3File = new Mp3File(file);
 
             ID3v2 id3v2Tag;
             if (mp3File.hasId3v2Tag()) {
