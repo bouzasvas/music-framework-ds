@@ -1,3 +1,4 @@
+import gr.aueb.ds.music.framework.commons.ProgramArguments;
 import gr.aueb.ds.music.framework.commons.SystemExitCodes;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
@@ -19,6 +20,7 @@ public class Main {
     private final static Scanner userInput = new Scanner(System.in);
 
     public static void main(String... args) {
+        ProgramArguments.loadProgramArguments(args);
         startMenu();
     }
 

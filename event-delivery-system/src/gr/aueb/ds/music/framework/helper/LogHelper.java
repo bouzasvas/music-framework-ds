@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.framework.helper;
 
 import gr.aueb.ds.music.framework.commons.ConsoleColors;
+import gr.aueb.ds.music.framework.commons.ProgramArguments;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Consumer;
 import gr.aueb.ds.music.framework.nodes.api.Node;
@@ -10,6 +11,8 @@ import gr.aueb.ds.music.framework.nodes.impl.NodeAbstractImplementation;
 import java.util.Collections;
 
 public class LogHelper {
+
+    private static final boolean NO_COLORS = ProgramArguments.getArgument("--no-colors").equals(Boolean.TRUE);
 
     // General
     public static void info(Node node, String message) {
@@ -48,12 +51,13 @@ public class LogHelper {
         LogHelper.userInputWithColor(color, inputMessage, false);
     }
 
-    public static void userInputWithColor(String color, String inputMessage, boolean newLine) {
-        System.out.print(color + inputMessage + (newLine ? "\n" : ""));
-    }
-
     public static void printMenuItem(String message, boolean newLine) {
         LogHelper.userInputWithColor(ConsoleColors.CYAN, message, newLine);
+    }
+
+    public static void userInputWithColor(String color, String inputMessage, boolean newLine) {
+        if (NO_COLORS) color = "";
+        System.out.print(color + inputMessage + (newLine ? "\n" : ""));
     }
 
     // Broker
@@ -108,9 +112,9 @@ public class LogHelper {
     private static void info(NodeAbstractImplementation node, String pattern, String message) {
         String output = String.format(pattern, node.getNodeDetails().getName(), message);
 
-        System.out.println(ConsoleColors.RESET + String.join("", Collections.nCopies(output.length(), "#")));
-        System.out.println(ConsoleColors.RESET + output);
-        System.out.println(ConsoleColors.RESET + String.join("", Collections.nCopies(output.length(), "#")));
+        System.out.println((NO_COLORS ? "" : ConsoleColors.RESET) + String.join("", Collections.nCopies(output.length(), "#")));
+        System.out.println((NO_COLORS ? "" : ConsoleColors.RESET) + output);
+        System.out.println((NO_COLORS ? "" : ConsoleColors.RESET) + String.join("", Collections.nCopies(output.length(), "#")));
     }
 
     private static void error(NodeAbstractImplementation node, String pattern, String message) {
@@ -127,8 +131,8 @@ public class LogHelper {
             }
         }
 
-        System.err.println(ConsoleColors.RED_BOLD + String.join("", Collections.nCopies(output.length(), "#")));
-        System.err.println(ConsoleColors.RED_BOLD + output);
-        System.err.println(ConsoleColors.RED_BOLD + String.join("", Collections.nCopies(output.length(), "#")));
+        System.err.println((NO_COLORS ? "" : ConsoleColors.RESET) + String.join("", Collections.nCopies(output.length(), "#")));
+        System.err.println((NO_COLORS ? "" : ConsoleColors.RESET) + output);
+        System.err.println((NO_COLORS ? "" : ConsoleColors.RESET) + String.join("", Collections.nCopies(output.length(), "#")));
     }
 }
