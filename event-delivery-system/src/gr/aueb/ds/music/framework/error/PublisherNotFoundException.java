@@ -4,11 +4,13 @@ import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 
 public class PublisherNotFoundException extends Exception {
 
+    private static final String PUBLISHER_NOT_FOUND_MSG = PropertiesHelper.getProperty("publisher.not.found.for.artist");
+
     public PublisherNotFoundException() {
-        this(PropertiesHelper.getProperty("publisher.not.found.for.artist"));
+        this("Unknown");
     }
 
-    public PublisherNotFoundException(String message) {
-        super(message);
+    public PublisherNotFoundException(String artist) {
+        super(String.format(PUBLISHER_NOT_FOUND_MSG, artist));
     }
 }

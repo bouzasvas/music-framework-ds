@@ -97,6 +97,11 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
         return consumer;
     }
 
+    /**
+     * This Method is used to find the appropriate Publisher for the Requested ArtistName
+     * @param artistName The Requested Artist from Consumer
+     * @throws PublisherNotFoundException If no publisher that can serve the Requested artist found
+     */
     @Override
     public void notifyPublisher(String artistName) throws PublisherNotFoundException {
         Publisher publisher =
@@ -111,7 +116,7 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
                                     && artistEnd.toLowerCase().compareTo(artistName.toLowerCase().substring(0, 1)) >= 0;
                         })
                         .findFirst()
-                        .orElseThrow(PublisherNotFoundException::new);
+                        .orElseThrow(() -> new PublisherNotFoundException(artistName));
 
         try {
             Socket publisherSocket = new Socket(publisher.getNodeDetails().getIpAddress(), publisher.getNodeDetails().getPort());
@@ -122,6 +127,12 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
     }
 
+    /**
+     * This Method is used to Retrieve Tracks List from appropriate Publisher
+     * @param artistName {@link gr.aueb.ds.music.framework.model.dto.ArtistName} The Requested Artist from Consumer
+     * @return The Music files List {@link List<MusicFile>} of Artist
+     * @throws PublisherNotFoundException If no publisher that can serve the Requested artist found
+     */
     @Override
     public List<MusicFile> pull(ArtistName artistName) throws PublisherNotFoundException {
         this.notifyPublisher(artistName.getArtistName());
