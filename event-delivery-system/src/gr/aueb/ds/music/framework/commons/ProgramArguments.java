@@ -14,6 +14,6 @@ public class ProgramArguments {
     }
 
     public static Object getArgument(String arg) {
-        return PROGRAM_ARGUMENTS.get(arg);
+        return PROGRAM_ARGUMENTS.getOrDefault(arg, new Object());
     }
 }
