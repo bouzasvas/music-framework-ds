@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.framework.nodes.impl;
 
 import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
+import gr.aueb.ds.music.framework.helper.HashingHelper;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
@@ -14,6 +15,7 @@ import gr.aueb.ds.music.framework.nodes.api.Publisher;
 import gr.aueb.ds.music.framework.parallel.actions.ActionsForClients;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -48,6 +50,9 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
     @Override
     public void init() throws IOException {
+        // Calculate Broker Hash
+        this.calculateKeys();
+
         // Connect Broker to Network
         this.connect();
 
@@ -67,7 +72,12 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
     @Override
     public void calculateKeys() {
+        String brokerIp = this.getNodeDetails().getIpAddress();
+        int brokerPort = this.getNodeDetails().getPort();
+        String concatIpPort = brokerIp + brokerPort;
 
+        BigInteger brokerHash = HashingHelper.hashText(concatIpPort);
+        this.getNodeDetails().setBrokerHash(brokerHash);
     }
 
     @Override
@@ -99,6 +109,7 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
     /**
      * This Method is used to find the appropriate Publisher for the Requested ArtistName
+     *
      * @param artistName The Requested Artist from Consumer
      * @throws PublisherNotFoundException If no publisher that can serve the Requested artist found
      */
@@ -129,6 +140,7 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
     /**
      * This Method is used to Retrieve Tracks List from appropriate Publisher
+     *
      * @param artistName {@link gr.aueb.ds.music.framework.model.dto.ArtistName} The Requested Artist from Consumer
      * @return The Music files List {@link List<MusicFile>} of Artist
      * @throws PublisherNotFoundException If no publisher that can serve the Requested artist found
@@ -175,8 +187,8 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
         List<Publisher> publishersToBeRemoved = new ArrayList<>();
         // Check Connectivity with Publishers
         for (Publisher publisher : registeredPublishers) {
-            String publisherIp  = publisher.getNodeDetails().getIpAddress();
-            int publisherPort   = publisher.getNodeDetails().getPort();
+            String publisherIp = publisher.getNodeDetails().getIpAddress();
+            int publisherPort = publisher.getNodeDetails().getPort();
 
             try {
                 NetworkHelper.checkIfHostIsAlive(publisherIp, publisherPort);

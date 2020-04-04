@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.framework.model;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 
 public class NodeDetails implements Serializable {
     private static final long serialVersionUID = 7581331141467710240L;
@@ -8,6 +9,9 @@ public class NodeDetails implements Serializable {
     private String name;
     private String ipAddress;
     private int port;
+
+    // For Broker
+    private BigInteger brokerHash;
 
     // For Publisher
     private String[] artistRange;
@@ -34,6 +38,14 @@ public class NodeDetails implements Serializable {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public BigInteger getBrokerHash() {
+        return brokerHash;
+    }
+
+    public void setBrokerHash(BigInteger brokerHash) {
+        this.brokerHash = brokerHash;
     }
 
     public String[] getArtistRange() {
