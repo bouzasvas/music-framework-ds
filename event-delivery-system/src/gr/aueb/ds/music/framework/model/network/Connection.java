@@ -15,6 +15,7 @@ public class Connection {
 
     public Connection(Socket socket) throws IOException {
         this.socket = socket;
+        this.socket.setSoTimeout(100000);
 
         this.os = new ObjectOutputStream(this.socket.getOutputStream());
         this.is = new ObjectInputStream(this.getSocket().getInputStream());
