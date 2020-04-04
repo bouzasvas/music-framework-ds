@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.framework.parallel.actions.request;
 
 import gr.aueb.ds.music.framework.helper.FileSystemHelper;
+import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 import gr.aueb.ds.music.framework.model.dto.Value;
@@ -37,30 +38,13 @@ public class ActionForTrackRequestInPublisher extends ActionImplementation imple
 
             int currentChunk = 0;
             while (currentChunk < numberOfChunks) {
-                MusicFile musicChunkFile = new MusicFile(musicFile);
-
-                int offset = currentChunk * MAX_CHUNK_SIZE;
-                int length = MAX_CHUNK_SIZE;
-                if (currentChunk == numberOfChunks-1) {
-                    length = totalFileLength - ((numberOfChunks -1) * MAX_CHUNK_SIZE);
-                }
-
-                // Create a byte[] with max Length = MAX_CHUNK_SIZE
-                byte[] chunkBytes = new byte[length];
-                System.arraycopy(musicFileBytes, offset, chunkBytes, 0, length);
-
-                // Read bytes of original byte[] into chunkBytes[]
-//            int length = (int) byteArrayInputStream.skip(currentChunk == 0 ? 0 : MAX_CHUNK_SIZE);
-//            byteArrayInputStream.read(chunkBytes, 0, currentChunk != 0 ? Math.min(length, MAX_CHUNK_SIZE): MAX_CHUNK_SIZE);
-
-                musicChunkFile.setMusicFileExtract(chunkBytes);
+                MusicFile musicChunkFile = this.getMusicFileChunk(musicFile, currentChunk, numberOfChunks);
 
                 // Transmit MusicFile with Chunk Byte[] over the Network
                 try {
                     this.objectOutputStream.writeObject(musicChunkFile);
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    // TODO -- Logging
+                    LogHelper.errorWithParams(this.publisher, PropertiesHelper.getProperty("publisher.music.file.chunk.send.error"), String.valueOf(currentChunk), musicChunkFile.toString());
                 }
 
                 // Next Chunk
@@ -68,13 +52,11 @@ public class ActionForTrackRequestInPublisher extends ActionImplementation imple
             }
         });
 
-
         // Send null to Terminate Operation (or if Music File is null)
         try {
             this.objectOutputStream.writeObject(null);
         } catch (IOException e) {
-            // TODO -- Logging
-            e.printStackTrace();
+            LogHelper.errorWithParams(this.publisher, PropertiesHelper.getProperty("publisher.music.file.chunks.complete.error"));
         }
     }
 
@@ -83,5 +65,28 @@ public class ActionForTrackRequestInPublisher extends ActionImplementation imple
         int numberOfChunks = (int) Math.ceil(chunksDecimal);
 
         return numberOfChunks;
+    }
+
+    private MusicFile getMusicFileChunk(MusicFile originalFile, int chunkNo, int totalChunks) {
+        byte[] musicFileBytes = originalFile.getMusicFileExtract();
+
+        int offset = chunkNo * MAX_CHUNK_SIZE;
+        int length = MAX_CHUNK_SIZE;
+        if (chunkNo == totalChunks-1) {
+            length = musicFileBytes.length - ((totalChunks -1) * MAX_CHUNK_SIZE);
+        }
+
+        // Create a byte[] with max Length = MAX_CHUNK_SIZE
+        byte[] chunkBytes = new byte[length];
+        System.arraycopy(musicFileBytes, offset, chunkBytes, 0, length);
+
+        // Read bytes of original byte[] into chunkBytes[]
+//            int length = (int) byteArrayInputStream.skip(currentChunk == 0 ? 0 : MAX_CHUNK_SIZE);
+//            byteArrayInputStream.read(chunkBytes, 0, currentChunk != 0 ? Math.min(length, MAX_CHUNK_SIZE): MAX_CHUNK_SIZE);
+
+        MusicFile musicChunkFile = new MusicFile(originalFile);
+        musicChunkFile.setMusicFileExtract(chunkBytes);
+
+        return musicChunkFile;
     }
 }
