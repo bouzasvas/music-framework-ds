@@ -24,11 +24,13 @@ public class ActionForTrackRequest extends ActionImplementation implements Reque
 
             MusicFile musicFile = NetworkHelper.doObjectRequest(publisherConnection, request);
             this.objectOutputStream.writeObject(musicFile);
-            while ((musicFile = (MusicFile)publisherConnectionIs.readObject()) != null) {
-                this.objectOutputStream.writeObject(musicFile);
-            }
-            this.objectOutputStream.writeObject(null);
 
+            if (musicFile != null) {
+                while ((musicFile = (MusicFile)publisherConnectionIs.readObject()) != null) {
+                    this.objectOutputStream.writeObject(musicFile);
+                }
+                this.objectOutputStream.writeObject(null);
+            }
         } catch (IOException | ClassNotFoundException e) {
             // TODO -- Logging
             e.printStackTrace();

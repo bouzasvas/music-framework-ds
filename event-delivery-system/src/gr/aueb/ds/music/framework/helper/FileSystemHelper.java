@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,9 +34,8 @@ public class FileSystemHelper {
                     .filter(musicFile -> musicFile.getArtistName().toLowerCase().contains(artist.toLowerCase()))
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            // TODO - Logging
-            e.printStackTrace();
-            //LogHelper.errorWithParams(publisher, PropertiesHelper.getProperty("publisher.music.list.read.file.system"), MUSIC_FILES_DIR);
+            LogHelper.errorWithParams(publisher, PropertiesHelper.getProperty("files.get.music.files.from.disk"), MUSIC_FILES_DIR);
+            return Collections.emptyList();
         }
 
         return musicFiles;
@@ -58,7 +54,9 @@ public class FileSystemHelper {
             mf.setMusicFileExtract(musicFileData);
         });
 
-        return musicFileOptional.orElse(null);
+        return musicFileOptional
+                .filter(mf -> Objects.nonNull(mf.getMusicFileExtract()))
+                .orElse(null);
     }
 
     public static void saveMusicFileToFileSystem(MusicFile musicFile) throws IOException {
@@ -132,8 +130,7 @@ public class FileSystemHelper {
 
 //            mp3File.save(fileName);
         } catch (Exception e) {
-            // TODO -- Add Logging
-            e.printStackTrace();
+            LogHelper.error(PropertiesHelper.getProperty("files.copy.metadata..to.file"));
         }
     }
 
@@ -155,8 +152,7 @@ public class FileSystemHelper {
             musicFileData = Files.readAllBytes(file.toPath());
         }
         catch (IOException ex) {
-            // TODO - Logging
-            ex.printStackTrace();
+            LogHelper.errorWithParams(PropertiesHelper.getProperty("files.get.music.file.bytes"), mf.getTrackName());
         }
 
         return musicFileData;

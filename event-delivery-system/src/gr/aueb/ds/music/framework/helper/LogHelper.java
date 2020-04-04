@@ -34,6 +34,12 @@ public class LogHelper {
         LogHelper.error(null, output, message);
     }
 
+    public static void errorWithParams(String message, String... params) {
+        String output = "%s";
+        String formattedMsg = String.format(message, params);
+        LogHelper.error(null, output, formattedMsg);
+    }
+
     public static void userInput(String inputMesage) {
         LogHelper.userInputWithColor(ConsoleColors.RESET, inputMesage, false);
     }
@@ -113,7 +119,12 @@ public class LogHelper {
              output = String.format(pattern, node.getNodeDetails().getName(), message);
         }
         else {
-            output = String.format(pattern, "(null)", message);
+            if (pattern.split("%s").length == 2) {
+                output = String.format(pattern, "(null)", message);
+            }
+            else {
+                output = String.format(pattern, message);
+            }
         }
 
         System.err.println(ConsoleColors.RED_BOLD + String.join("", Collections.nCopies(output.length(), "#")));
