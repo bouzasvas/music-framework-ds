@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.framework.parallel.actions.request;
 
 import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
+import gr.aueb.ds.music.framework.helper.HashingHelper;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
@@ -9,7 +10,10 @@ import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 
 import java.io.IOException;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class ActionsForConsumerRequest extends ActionImplementation implements RequestAction<ArtistName> {
 
@@ -44,22 +48,45 @@ public class ActionsForConsumerRequest extends ActionImplementation implements R
         Broker suitableBroker = null;
 
         try {
-            // Calculate Keys of Each Registerer Broker
-            this.broker.getBrokers().forEach(Broker::calculateKeys);
-
-            // Get the appropriate Broker to send as Response
-            suitableBroker = this.broker.getBrokers()
-                    .stream()
-                    // TODO filtering
-                    // .filter()
-                    .findAny().orElse(null);
+            suitableBroker = findHashedBrokerBasedOnArtist(request.getArtistName());
 
             this.objectOutputStream.writeObject(suitableBroker);
             this.closeConnectionIfBrokerIsNotMaster(suitableBroker);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             LogHelper.error(this.broker, String.format(PropertiesHelper.getProperty("consumer.request.artistName.error"), suitableBroker, request));
         }
+    }
+
+    private Broker findHashedBrokerBasedOnArtist(String artistName) {
+        BigInteger artistHash = HashingHelper.hashText(artistName);
+
+        // Construct Map of Broker Hash as Key and Broker as Value
+        Map<BigInteger, Broker> brokerHashes = this.broker
+                .getBrokers()
+                .stream()
+                .collect(Collectors.toMap(
+                        br -> br.getNodeDetails().getBrokerHash(),
+                        br -> br,
+                        (v1, v2) -> v1,
+                        TreeMap::new));
+
+        BigInteger minimumHashing = brokerHashes.keySet().stream().min(Comparator.naturalOrder()).orElse(BigInteger.valueOf(Long.MIN_VALUE));
+        BigInteger maximumHashing = brokerHashes.keySet().stream().max(Comparator.naturalOrder()).orElse(BigInteger.valueOf(Long.MAX_VALUE));
+
+        // If Artist Hashing bigger than Maximum Hashing return Broker with Minimum Hashing
+        Broker suitableBroker = null;
+        if (artistHash.compareTo(maximumHashing) > 0) {
+            suitableBroker = brokerHashes.get(minimumHashing);
+        }
+        else {
+            // Init rightHashing with Min Hashing value
+            AtomicReference<BigInteger> rightHashing = new AtomicReference<>(minimumHashing);
+            brokerHashes.keySet().forEach(k -> rightHashing.set(k.min(artistHash)));
+
+            suitableBroker = brokerHashes.get(rightHashing.get());
+        }
+
+        return suitableBroker;
     }
 
     private void sendErrorResponseToConsumer(PublisherNotFoundException e) {
