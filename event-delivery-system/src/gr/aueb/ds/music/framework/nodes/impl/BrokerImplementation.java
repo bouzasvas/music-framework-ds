@@ -74,13 +74,13 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
     public Publisher acceptConnection(Publisher publisher) {
         List<Publisher> registeredPublishers = this.getRegisteredPublishers();
 
-        // TODO -- Organise Artists Name
-
         if (!(publisher.isPublisherDown() || registeredPublishers.contains(publisher))) {
             registeredPublishers.add(publisher);
         }
-        else {
+
+        if (publisher.isPublisherDown()) {
             registeredPublishers.remove(publisher);
+            reOrganizeArtists(publisher);
         }
 
         return publisher;
@@ -188,8 +188,37 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
         return this.publisherConnection;
     }
 
+    @Override
     public BrokerIndicator getBrokerIndicator() {
         return brokerIndicator;
+    }
+
+
+    /**
+     * This method re-organizes Artists that Publisher are responsible for when a Publisher disconnects from Network.
+     *
+     * <b>Note: This method works only if 2 Publishers are connected to Network and 1 disconnects</b>
+     *
+     * @param removedPublisher {@link gr.aueb.ds.music.framework.nodes.api.Publisher} The publisher that disconnected from Network
+     */
+    private void reOrganizeArtists(Publisher removedPublisher) {
+        String[] artistRange = removedPublisher.getNodeDetails().getArtistRange();
+        String fromArtistRemoved = artistRange[0];
+        String toArtistRemoved = artistRange[1];
+
+        this.registeredPublishers.forEach(publisher -> {
+            String[] pubArtistRange = publisher.getNodeDetails().getArtistRange();
+            String fromArtist = pubArtistRange[0];
+            String toArtist = pubArtistRange[1];
+
+            if (fromArtistRemoved.compareTo(fromArtist) < 1) {
+                pubArtistRange[0] = fromArtistRemoved;
+            }
+
+            if (toArtistRemoved.compareTo(toArtist) > 1) {
+                pubArtistRange[1] = toArtistRemoved;
+            }
+        });
     }
 
     public void setBrokerIndicator(BrokerIndicator brokerIndicator) {
