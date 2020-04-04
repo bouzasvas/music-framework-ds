@@ -1,6 +1,8 @@
 package gr.aueb.ds.music.framework.parallel.actions.request;
 
+import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
+import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 import gr.aueb.ds.music.framework.model.dto.Value;
 import gr.aueb.ds.music.framework.model.network.Connection;
@@ -25,15 +27,18 @@ public class ActionForTrackRequest extends ActionImplementation implements Reque
             MusicFile musicFile = NetworkHelper.doObjectRequest(publisherConnection, request);
             this.objectOutputStream.writeObject(musicFile);
 
+            // If Music File is not null waiting from Publisher the other music file chunks
             if (musicFile != null) {
+                // When Broker receives null all Chunks have been transmitted
                 while ((musicFile = (MusicFile)publisherConnectionIs.readObject()) != null) {
                     this.objectOutputStream.writeObject(musicFile);
                 }
+
+                // Notify Consumer for End Of Chunks transmission
                 this.objectOutputStream.writeObject(null);
             }
         } catch (IOException | ClassNotFoundException e) {
-            // TODO -- Logging
-            e.printStackTrace();
+            LogHelper.errorWithParams(this.broker, PropertiesHelper.getProperty("broker.consumer.music.file.chunks.transmission.failed"), request.getMusicFile().toString());
         }
     }
 }

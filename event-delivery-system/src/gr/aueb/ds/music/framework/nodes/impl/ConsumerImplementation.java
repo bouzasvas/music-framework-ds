@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.framework.nodes.impl;
 
 import gr.aueb.ds.music.framework.commons.SystemExitCodes;
+import gr.aueb.ds.music.framework.error.FileChunksProcessingException;
 import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
 import gr.aueb.ds.music.framework.helper.FileSystemHelper;
 import gr.aueb.ds.music.framework.helper.LogHelper;
@@ -60,28 +61,15 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 
     @Override
     public void playData(ArtistName artistName, Value value) {
-        List<byte[]> musicFileBytesList = new ArrayList<>();
         try {
-            MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
-            musicFileBytesList.add(musicFile.getMusicFileExtract());
+            List<byte[]> fileChunks = this.retrieveChunksOfMusicFile(value);
+            MusicFile finalMusicFile = this.mergeChunks(value, fileChunks);
 
-            while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
-                musicFileBytesList.add(musicFile.getMusicFileExtract());
-            }
-
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            for (byte[] bytes : musicFileBytesList) {
-                byteArrayOutputStream.write(bytes);
-            }
-
-            MusicFile wholeFile = new MusicFile(value.getMusicFile());
-            wholeFile.setMusicFileExtract(byteArrayOutputStream.toByteArray());
-
-            FileSystemHelper.saveMusicFileToFileSystem(wholeFile);
-        } catch (IOException | ClassNotFoundException e) {
-            // TODO -- Logging
-            e.printStackTrace();
+            FileSystemHelper.saveMusicFileToFileSystem(finalMusicFile);
+        } catch (FileChunksProcessingException ex) {
+            LogHelper.errorWithParams(this, ex.getMessage(), value.getMusicFile().toString());
+        } catch (IOException e) {
+            LogHelper.errorWithParams(this, PropertiesHelper.getProperty("consumer.save.file.to.disk"), value.getMusicFile().toString());
         }
     }
 
@@ -186,6 +174,42 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
                 });
 
         return musicFiles;
+    }
+
+    private List<byte[]> retrieveChunksOfMusicFile(Value value) throws FileChunksProcessingException {
+        List<byte[]> musicFileBytesList = new ArrayList<>();
+
+        try {
+            // Do Request and Retrieve Chunks one by one
+            MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
+            musicFileBytesList.add(musicFile.getMusicFileExtract());
+
+            while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
+                musicFileBytesList.add(musicFile.getMusicFileExtract());
+            }
+        }
+        catch (IOException | ClassNotFoundException ex) {
+            throw new FileChunksProcessingException("consumer.get.file.chunks");
+        }
+
+        return musicFileBytesList;
+    }
+
+    private MusicFile mergeChunks(Value value, List<byte[]> musicFileChunks) throws FileChunksProcessingException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        MusicFile wholeFile = new MusicFile(value.getMusicFile());
+        try {
+            for (byte[] bytes : musicFileChunks) {
+                byteArrayOutputStream.write(bytes);
+            }
+
+            wholeFile.setMusicFileExtract(byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            throw new FileChunksProcessingException("consumer.merge.file.chunks");
+        }
+
+        return wholeFile;
     }
 
     private void findAppropriateBroker() {
