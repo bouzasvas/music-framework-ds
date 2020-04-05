@@ -1,26 +1,26 @@
 package gr.aueb.ds.music.framework.helper;
 
+import gr.aueb.ds.music.framework.commons.ProgramArguments;
 import gr.aueb.ds.music.framework.model.network.Connection;
 import gr.aueb.ds.music.framework.model.network.Ping;
 import gr.aueb.ds.music.framework.model.network.Pong;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
 public class NetworkHelper {
 
     public static String getCurrentIpAddress() {
+        boolean onlineMode = ProgramArguments.getArgument("--online").equals(Boolean.TRUE);
+
         String ip;
         try {
-            DatagramSocket socket = new DatagramSocket();
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-
-            ip = socket.getLocalAddress().getHostAddress();
+            if (onlineMode) {
+                ip = getRemoteIp();
+            }
+            else {
+                ip = getLocalIp();
+            }
         }
         catch (Exception ex) {
             System.err.println("NetworkHelper :: getCurrentIpAddress :: Could not Retrieve IP Adress of Host.. Returning localhost");
@@ -28,6 +28,20 @@ public class NetworkHelper {
         }
 
         return ip;
+    }
+
+    private static String getLocalIp() throws IOException {
+        DatagramSocket socket = new DatagramSocket();
+        socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+
+        return socket.getLocalAddress().getHostAddress();
+    }
+
+    private static String getRemoteIp() throws IOException {
+        URL whatsMyIp = new URL("http://checkip.amazonaws.com");
+        BufferedReader in = new BufferedReader(new InputStreamReader(whatsMyIp.openStream()));
+
+        return in.readLine();
     }
 
     public static ServerSocket initServer(int port) throws IOException {
