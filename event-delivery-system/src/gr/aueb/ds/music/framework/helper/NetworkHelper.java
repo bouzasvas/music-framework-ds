@@ -11,7 +11,7 @@ import java.net.*;
 public class NetworkHelper {
 
     public static String getCurrentIpAddress() {
-        boolean onlineMode = ProgramArguments.getArgument("--online").equals(Boolean.TRUE);
+        boolean onlineMode = ProgramArguments.containsArg("--online");
 
         String ip;
         try {

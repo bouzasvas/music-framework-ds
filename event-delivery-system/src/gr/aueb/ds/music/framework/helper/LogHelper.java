@@ -12,7 +12,7 @@ import java.util.Collections;
 
 public class LogHelper {
 
-    private static final boolean NO_COLORS = ProgramArguments.getArgument("--no-colors").equals(Boolean.TRUE);
+    private static final boolean NO_COLORS = ProgramArguments.containsArg("--no-colors");
 
     // General
     public static void info(Node node, String message) {
