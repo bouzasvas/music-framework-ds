@@ -62,15 +62,17 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     @Override
     public void playData(ArtistName artistName, Value value) {
         try {
-            List<byte[]> fileChunks = this.retrieveChunksOfMusicFile(value);
-            MusicFile finalMusicFile = this.mergeChunks(value, fileChunks);
-
-            FileSystemHelper.saveMusicFileToFileSystem(finalMusicFile);
+            saveChunkInFileSystem(value);
+//            List<byte[]> fileChunks = this.retrieveChunksOfMusicFile(value);
+//            MusicFile finalMusicFile = this.mergeChunks(value, fileChunks);
+//
+//            FileSystemHelper.saveMusicFileToFileSystem(finalMusicFile);
         } catch (FileChunksProcessingException ex) {
             LogHelper.errorWithParams(this, ex.getMessage(), value.getMusicFile().toString());
-        } catch (IOException e) {
-            LogHelper.errorWithParams(this, PropertiesHelper.getProperty("consumer.save.file.to.disk"), value.getMusicFile().toString());
         }
+//        catch (IOException e) {
+//            LogHelper.errorWithParams(this, PropertiesHelper.getProperty("consumer.save.file.to.disk"), value.getMusicFile().toString());
+//        }
     }
 
     @Override
@@ -106,6 +108,8 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 
             // Prompt user to choose Track (based on number)
             int trackNo = promptUserForTrackNo(scanner, musicFiles);
+            // Choose whether to Download or Play file
+            boolean download = promptUserToChooseDownloadOrPlay(scanner);
 
             // Do the Request for specific Track to Broker
             Value value = new Value(musicFiles.get(trackNo - 1));
@@ -156,6 +160,11 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         return trackNo;
     }
 
+    private boolean promptUserToChooseDownloadOrPlay(Scanner scanner) {
+//        LogHelper.userInputWithColor(ConsoleColors.BLUE_BOLD, );
+        return false;
+    }
+
     private List<MusicFile> getTracksFromBroker() throws Exception {
         // Get Track Results
         List<MusicFile> musicFiles = this.getTrackResults();
@@ -174,6 +183,24 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
                 });
 
         return musicFiles;
+    }
+
+    private void saveChunkInFileSystem(Value value) throws FileChunksProcessingException {
+        int chunkNo = 1;
+
+        try {
+            // Do Request and Retrieve Chunks one by one
+            MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
+            musicFile.setTrackName(musicFile.getTrackName().concat("_chunk" + chunkNo++));
+            FileSystemHelper.saveMusicFileToFileSystem(musicFile);
+            while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
+                musicFile.setTrackName(musicFile.getTrackName().concat("_chunk" + chunkNo++));
+                FileSystemHelper.saveMusicFileToFileSystem(musicFile);
+            }
+        }
+        catch (IOException | ClassNotFoundException ex) {
+            throw new FileChunksProcessingException("consumer.get.file.chunks");
+        }
     }
 
     private List<byte[]> retrieveChunksOfMusicFile(Value value) throws FileChunksProcessingException {
