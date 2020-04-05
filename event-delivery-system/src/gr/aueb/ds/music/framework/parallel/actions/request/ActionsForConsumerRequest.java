@@ -79,11 +79,15 @@ public class ActionsForConsumerRequest extends ActionImplementation implements R
             suitableBroker = brokerHashes.get(minimumHashing);
         }
         else {
-            // Init rightHashing with Min Hashing value
-            AtomicReference<BigInteger> rightHashing = new AtomicReference<>(minimumHashing);
-            brokerHashes.keySet().forEach(k -> rightHashing.set(k.min(artistHash)));
+            BigInteger rightHashing = null;
+            for (BigInteger hash : brokerHashes.keySet()) {
+                if (artistHash.compareTo(hash) < 0) {
+                    rightHashing = hash;
+                    break;
+                }
+            }
 
-            suitableBroker = brokerHashes.get(rightHashing.get());
+            suitableBroker = brokerHashes.get(rightHashing);
         }
 
         return suitableBroker;
