@@ -61,6 +61,8 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 
     @Override
     public void playData(ArtistName artistName, Value value) {
+        if (FileSystemHelper.fileHasDownloaded(value.getMusicFile())) return;
+
         try {
             saveChunkInFileSystem(value);
         } catch (FileChunksProcessingException ex) {
