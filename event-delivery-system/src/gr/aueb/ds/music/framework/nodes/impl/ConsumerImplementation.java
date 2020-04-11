@@ -63,16 +63,23 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     public void playData(ArtistName artistName, Value value) {
         try {
             saveChunkInFileSystem(value);
-//            List<byte[]> fileChunks = this.retrieveChunksOfMusicFile(value);
-//            MusicFile finalMusicFile = this.mergeChunks(value, fileChunks);
-//
-//            FileSystemHelper.saveMusicFileToFileSystem(finalMusicFile);
         } catch (FileChunksProcessingException ex) {
             LogHelper.errorWithParams(this, ex.getMessage(), value.getMusicFile().toString());
         }
-//        catch (IOException e) {
-//            LogHelper.errorWithParams(this, PropertiesHelper.getProperty("consumer.save.file.to.disk"), value.getMusicFile().toString());
-//        }
+    }
+
+    private void downloadSelectedTrack(Value value) {
+        MusicFile finalMusicFile = null;
+        try {
+            List<byte[]> fileChunks = this.retrieveChunksOfMusicFile(value);
+            finalMusicFile = this.mergeChunks(value, fileChunks);
+
+            FileSystemHelper.saveMusicFileToFileSystem(finalMusicFile, true);
+        } catch (FileChunksProcessingException ex) {
+            LogHelper.errorWithParams(this, ex.getMessage(), value.getMusicFile().toString());
+        } catch (IOException ex) {
+            LogHelper.errorWithParams(this, PropertiesHelper.getProperty("consumer.save.file.to.disk"), value.getMusicFile().toString());
+        }
     }
 
     @Override
@@ -108,11 +115,14 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 
             // Prompt user to choose Track (based on number)
             int trackNo = promptUserForTrackNo(scanner, musicFiles);
+            // Selected Track from List
+            Value value = new Value(musicFiles.get(trackNo - 1));
+
             // Choose whether to Download or Play file
             boolean download = promptUserToChooseDownloadOrPlay(scanner);
+            if (download) downloadSelectedTrack(value);
 
             // Do the Request for specific Track to Broker
-            Value value = new Value(musicFiles.get(trackNo - 1));
             this.playData(this.artistName, value);
         }
     }
@@ -161,8 +171,18 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     }
 
     private boolean promptUserToChooseDownloadOrPlay(Scanner scanner) {
-//        LogHelper.userInputWithColor(ConsoleColors.BLUE_BOLD, );
-        return false;
+        String choice = "";
+        while (!(choice.equalsIgnoreCase("y") || choice.equalsIgnoreCase("n"))) {
+            LogHelper.userInputWithColor(ConsoleColors.BLUE_BOLD, PropertiesHelper.getProperty("consumer.menu.download.or.play"));
+            choice = scanner.nextLine();
+
+            if (!(choice.equalsIgnoreCase("y") || choice.equalsIgnoreCase("n"))) {
+                LogHelper.error(this, PropertiesHelper.getProperty("consumer.menu.download.or.play.failed.input"));
+                System.out.println();
+            }
+        }
+
+        return choice.equalsIgnoreCase("Y");
     }
 
     private List<MusicFile> getTracksFromBroker() throws Exception {
@@ -192,10 +212,10 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
             // Do Request and Retrieve Chunks one by one
             MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
             musicFile.setTrackName(musicFile.getTrackName().concat("_chunk" + chunkNo++));
-            FileSystemHelper.saveMusicFileToFileSystem(musicFile);
+            FileSystemHelper.saveMusicFileToFileSystem(musicFile, false);
             while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
                 musicFile.setTrackName(musicFile.getTrackName().concat("_chunk" + chunkNo++));
-                FileSystemHelper.saveMusicFileToFileSystem(musicFile);
+                FileSystemHelper.saveMusicFileToFileSystem(musicFile, false);
             }
         }
         catch (IOException | ClassNotFoundException ex) {

@@ -18,7 +18,8 @@ import java.util.stream.Stream;
 public class FileSystemHelper {
 
     private static final String MUSIC_FILES_DIR = PropertiesHelper.getProperty("music.files.directory");
-    private static final String MUSIC_FILES_OUTPUT_DIR = PropertiesHelper.getProperty("music.files.consumer.directory");
+    private static final String MUSIC_FILES_OUTPUT_DIR = PropertiesHelper.getProperty("music.files.consumer.dir.downloaded");
+    private static final String MUSIC_FILES_CHUNKS_OUTPUT_DIR = PropertiesHelper.getProperty("music.files.consumer.directory");
 
     private static Predicate<String> isMp3File = (file) -> !file.startsWith(".") && file.endsWith(".mp3");
 
@@ -59,9 +60,10 @@ public class FileSystemHelper {
                 .orElse(null);
     }
 
-    public static void saveMusicFileToFileSystem(MusicFile musicFile) throws IOException {
-        File outputDir = new File(MUSIC_FILES_OUTPUT_DIR);
-        outputDir.mkdir();
+    public static void saveMusicFileToFileSystem(MusicFile musicFile, boolean download) throws IOException {
+        String SAVE_DIR = download ? MUSIC_FILES_OUTPUT_DIR : MUSIC_FILES_CHUNKS_OUTPUT_DIR;
+        File outputDir = new File(SAVE_DIR);
+        if (!outputDir.exists()) outputDir.mkdirs();
 
         String fileName = musicFile.getTrackName().concat(".mp3");
 

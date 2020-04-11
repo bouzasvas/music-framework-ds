@@ -115,6 +115,8 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
      */
     @Override
     public void notifyPublisher(String artistName) throws PublisherNotFoundException {
+        if (artistName == null || artistName.isEmpty()) throw new PublisherNotFoundException(artistName);
+
         Publisher publisher =
                 this.registeredPublishers
                         .stream()
