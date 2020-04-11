@@ -65,7 +65,7 @@ public class FileSystemHelper {
         try {
             downloadedFilePaths = Files.walk(Paths.get(MUSIC_FILES_OUTPUT_DIR));
         } catch (IOException e) {
-            LogHelper.errorWithParams(PropertiesHelper.getProperty("files.music.file.exists.error"), MUSIC_FILES_OUTPUT_DIR);
+            LogHelper.errorWithParams(PropertiesHelper.getProperty("files.music.file.not.exists"), MUSIC_FILES_OUTPUT_DIR);
             return false;
         }
 
