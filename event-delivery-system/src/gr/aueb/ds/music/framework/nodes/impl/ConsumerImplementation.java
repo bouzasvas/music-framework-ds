@@ -118,6 +118,9 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
             // Selected Track from List
             Value value = new Value(musicFiles.get(trackNo - 1));
 
+            // Search if File already Exists
+            if (FileSystemHelper.fileHasDownloaded(value.getMusicFile())) continue;
+
             // Choose whether to Download or Play file
             boolean download = promptUserToChooseDownloadOrPlay(scanner);
             if (download) downloadSelectedTrack(value);

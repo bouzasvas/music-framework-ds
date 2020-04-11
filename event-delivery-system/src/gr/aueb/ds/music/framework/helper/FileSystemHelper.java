@@ -60,6 +60,22 @@ public class FileSystemHelper {
                 .orElse(null);
     }
 
+    public static boolean fileHasDownloaded(MusicFile musicFile) {
+        Stream<Path> downloadedFilePaths = null;
+        try {
+            downloadedFilePaths = Files.walk(Paths.get(MUSIC_FILES_OUTPUT_DIR));
+        } catch (IOException e) {
+            LogHelper.errorWithParams(PropertiesHelper.getProperty("files.music.file.exists.error"), MUSIC_FILES_OUTPUT_DIR);
+            return false;
+        }
+
+        return downloadedFilePaths
+                .filter(Files::isRegularFile)
+                .map(p -> p.getFileName().toString())
+                .filter(isMp3File)
+                .anyMatch(fileName -> fileName.equals(musicFile.getTrackName().concat(".mp3")));
+    }
+
     public static void saveMusicFileToFileSystem(MusicFile musicFile, boolean download) throws IOException {
         String SAVE_DIR = download ? MUSIC_FILES_OUTPUT_DIR : MUSIC_FILES_CHUNKS_OUTPUT_DIR;
         File outputDir = new File(SAVE_DIR);
