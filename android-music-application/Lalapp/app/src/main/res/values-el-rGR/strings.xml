@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LaLa App</string>
+    <string name="artist_name_label">Όνομα Καλλιτέχνη</string>
+    <string name="artist_name_placeholder">Καλλιτέχνης...</string>
+    <string name="search_btn_label">Αναζήτηση</string>
+    <string name="search_artist_toast">Αναζήτηση για τον Καλλιτέχνη \"{}\"</string>
+</resources>
