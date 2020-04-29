@@ -8,7 +8,7 @@
     android:background="#9261E4BF"
     android:gravity="clip_horizontal|center|clip_vertical|center_horizontal"
     android:orientation="vertical"
-    tools:context=".SplashScreen">
+    tools:context=".activities.SplashScreen">
 
     <ImageView
         android:id="@+id/play_icon"

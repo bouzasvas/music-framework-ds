@@ -1,4 +1,4 @@
-package gr.aueb.ds.music.android.lalapp;
+package gr.aueb.ds.music.android.lalapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
 import java.util.Objects;
+
+import gr.aueb.ds.music.android.lalapp.R;
 
 public class SplashScreen extends AppCompatActivity {
 

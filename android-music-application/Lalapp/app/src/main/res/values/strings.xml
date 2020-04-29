@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Lalapp</string>
+    <string name="app_name">LaLa App</string>
+    <string name="artist_name_label">Artist Name</string>
+    <string name="artist_name_placeholder">Artist Name...</string>
+    <string name="search_btn_label">Search</string>
+    <string name="search_artist_toast">Searching for Artist \"{}\"</string>
 </resources>
