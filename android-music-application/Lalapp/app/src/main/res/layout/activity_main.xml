@@ -6,11 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
+    <Button
+        android:id="@+id/search_artist_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:onClick="searchForArtists"
+        android:text="@string/search_btn_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/artist_name_label" />
+
     <EditText
         android:id="@+id/artist_name_input"
         android:layout_width="0dp"
         android:layout_height="49dp"
         android:layout_marginStart="16dp"
+        android:autofillHints=""
         android:ems="10"
         android:hint="@string/artist_name_placeholder"
         android:inputType="textAutoCorrect|text"
@@ -18,8 +29,7 @@
         app:layout_constraintEnd_toStartOf="@+id/search_artist_btn"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/artist_name_label"
-        android:autofillHints="" />
+        app:layout_constraintTop_toBottomOf="@+id/artist_name_label" />
 
     <TextView
         android:id="@+id/artist_name_label"
@@ -31,16 +41,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/search_artist_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:onClick="searchForArtists"
-        android:text="@string/search_btn_label"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/artist_name_label" />
-
     <View
         android:id="@+id/divider_view"
         style="@style/Divider"
@@ -51,15 +51,29 @@
         app:layout_constraintTop_toBottomOf="@+id/artist_name_input" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/artists_listview"
+        android:id="@+id/recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="1dp"
-        android:layout_marginEnd="1dp"
-        android:layout_marginBottom="637dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#FFFFFF"
+        android:backgroundTint="#FFFFFF"
+        android:foreground="@drawable/ic_launcher_foreground"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider_view" />
+
+    <Switch
+        android:id="@+id/offline_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/switch_offline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recycler_view" />
+
 </android.support.constraint.ConstraintLayout>
