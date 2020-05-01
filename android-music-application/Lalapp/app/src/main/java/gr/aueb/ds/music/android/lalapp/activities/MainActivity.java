@@ -2,22 +2,40 @@ package gr.aueb.ds.music.android.lalapp.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.EditText;
 
-import java.util.Optional;
+import java.util.ArrayList;
 
 import gr.aueb.ds.music.android.lalapp.R;
+import gr.aueb.ds.music.android.lalapp.RecyclerViewAdapter;
 import gr.aueb.ds.music.android.lalapp.helpers.LogHelper;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
 
 public class MainActivity extends AppCompatActivity {
 
+    private RecyclerView recyclerView;
+    private RecyclerViewAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+//        adapter = new RecyclerViewAdapter(new ArrayList());
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add("Gamiemai");
+        arrayList.add("Gamiesai");
+        arrayList.add("Gamietai");
+        arrayList.add("Gamiontoustan");
+        adapter = new RecyclerViewAdapter(arrayList);
+
+        recyclerView.setAdapter(adapter);
     }
 
     public void searchForArtists(View view) {
