@@ -72,6 +72,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
+        android:switchTextAppearance="@style/TextAppearance.AppCompat.Display1"
         android:text="@string/switch_offline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/recycler_view" />
