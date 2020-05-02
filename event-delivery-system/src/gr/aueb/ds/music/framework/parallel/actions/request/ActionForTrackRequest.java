@@ -3,9 +3,9 @@ package gr.aueb.ds.music.framework.parallel.actions.request;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
-import gr.aueb.ds.music.framework.model.dto.MusicFile;
-import gr.aueb.ds.music.framework.model.dto.Value;
-import gr.aueb.ds.music.framework.model.network.Connection;
+import gr.aueb.ds.music.framework.api.model.dto.MusicFile;
+import gr.aueb.ds.music.framework.api.model.dto.Value;
+import gr.aueb.ds.music.framework.api.model.network.Connection;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 
 import java.io.IOException;

@@ -2,11 +2,11 @@ package gr.aueb.ds.music.framework.helper;
 
 import gr.aueb.ds.music.framework.commons.ConsoleColors;
 import gr.aueb.ds.music.framework.commons.ProgramArguments;
-import gr.aueb.ds.music.framework.nodes.api.Broker;
-import gr.aueb.ds.music.framework.nodes.api.Consumer;
-import gr.aueb.ds.music.framework.nodes.api.Node;
-import gr.aueb.ds.music.framework.nodes.api.Publisher;
-import gr.aueb.ds.music.framework.nodes.impl.NodeAbstractImplementation;
+import gr.aueb.ds.music.framework.api.nodes.api.Broker;
+import gr.aueb.ds.music.framework.api.nodes.api.Consumer;
+import gr.aueb.ds.music.framework.api.nodes.api.Node;
+import gr.aueb.ds.music.framework.api.nodes.api.Publisher;
+import gr.aueb.ds.music.framework.api.nodes.impl.NodeAbstractImplementation;
 
 import java.util.Collections;
 

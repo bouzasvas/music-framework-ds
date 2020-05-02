@@ -1,9 +1,9 @@
 package gr.aueb.ds.music.framework.helper;
 
 import gr.aueb.ds.music.framework.commons.ProgramArguments;
-import gr.aueb.ds.music.framework.model.network.Connection;
-import gr.aueb.ds.music.framework.model.network.Ping;
-import gr.aueb.ds.music.framework.model.network.Pong;
+import gr.aueb.ds.music.framework.api.model.network.Connection;
+import gr.aueb.ds.music.framework.api.model.network.Ping;
+import gr.aueb.ds.music.framework.api.model.network.Pong;
 
 import java.io.*;
 import java.net.*;

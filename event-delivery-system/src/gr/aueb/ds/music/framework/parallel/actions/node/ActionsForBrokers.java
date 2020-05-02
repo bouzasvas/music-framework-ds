@@ -1,9 +1,8 @@
 package gr.aueb.ds.music.framework.parallel.actions.node;
 
-import gr.aueb.ds.music.framework.nodes.api.Broker;
-import gr.aueb.ds.music.framework.nodes.impl.BrokerImplementation;
+import gr.aueb.ds.music.framework.api.model.enums.BrokerIndicator;
+import gr.aueb.ds.music.framework.api.nodes.api.Broker;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
-import gr.aueb.ds.music.framework.parallel.actions.node.Action;
 
 import java.io.IOException;
 
@@ -23,11 +22,11 @@ public class ActionsForBrokers extends ActionImplementation implements Action<Br
             this.objectOutputStream.writeObject(this.broker);
 
             // Update Master Broker Internal Brokers list
-            if (clientBroker.getBrokerIndicator().equals(BrokerImplementation.BrokerIndicator.TO_ADD)) {
+            if (clientBroker.getBrokerIndicator().equals(BrokerIndicator.TO_ADD)) {
                 if (!this.broker.getBrokers().contains(clientBroker)) {
                     this.broker.getBrokers().add(clientBroker);
                 }
-            } else if (clientBroker.getBrokerIndicator().equals(BrokerImplementation.BrokerIndicator.TO_DELETE)) {
+            } else if (clientBroker.getBrokerIndicator().equals(BrokerIndicator.TO_DELETE)) {
                 this.broker.getBrokers().remove(clientBroker);
             }
 

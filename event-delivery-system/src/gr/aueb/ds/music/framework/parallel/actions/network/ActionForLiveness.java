@@ -1,7 +1,7 @@
 package gr.aueb.ds.music.framework.parallel.actions.network;
 
-import gr.aueb.ds.music.framework.model.network.Ping;
-import gr.aueb.ds.music.framework.model.network.Pong;
+import gr.aueb.ds.music.framework.api.model.network.Ping;
+import gr.aueb.ds.music.framework.api.model.network.Pong;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 
 import java.io.IOException;
