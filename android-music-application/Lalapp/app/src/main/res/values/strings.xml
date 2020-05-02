@@ -6,4 +6,5 @@
     <string name="search_artist_toast">Searching for Artist \"{}\"</string>
     <string name="switch_offline">Offline</string>
     <string name="switch_online">Online</string>
+    <string name="master_connection_failed">Connection to Master @ {}:{} failed</string>
 </resources>

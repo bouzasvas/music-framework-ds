@@ -5,4 +5,7 @@
     <string name="artist_name_placeholder">Καλλιτέχνης...</string>
     <string name="search_btn_label">Αναζήτηση</string>
     <string name="search_artist_toast">Αναζήτηση για τον Καλλιτέχνη \"{}\"</string>
+    <string name="switch_offline">Offline</string>
+    <string name="switch_online">Online</string>
+    <string name="master_connection_failed">Αδυναμία σύνδεσης στον Master @ {}:{}</string>
 </resources>
