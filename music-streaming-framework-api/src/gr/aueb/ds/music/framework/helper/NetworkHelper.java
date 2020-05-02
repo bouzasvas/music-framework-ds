@@ -1,6 +1,5 @@
 package gr.aueb.ds.music.framework.helper;
 
-import gr.aueb.ds.music.framework.commons.ProgramArguments;
 import gr.aueb.ds.music.framework.model.network.Connection;
 import gr.aueb.ds.music.framework.model.network.Ping;
 import gr.aueb.ds.music.framework.model.network.Pong;
@@ -11,7 +10,7 @@ import java.net.*;
 public class NetworkHelper {
 
     public static String getCurrentIpAddress() {
-        boolean onlineMode = ProgramArguments.containsArg("--online");
+        boolean onlineMode = false;
 
         String ip;
         try {

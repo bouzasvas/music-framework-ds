@@ -1,12 +1,12 @@
 package gr.aueb.ds.music.framework.parallel.actions.request;
 
-import gr.aueb.ds.music.framework.api.error.PublisherNotFoundException;
+import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
 import gr.aueb.ds.music.framework.helper.HashingHelper;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
-import gr.aueb.ds.music.framework.api.model.dto.ArtistName;
-import gr.aueb.ds.music.framework.api.model.dto.MusicFile;
-import gr.aueb.ds.music.framework.api.nodes.api.Broker;
+import gr.aueb.ds.music.framework.model.dto.ArtistName;
+import gr.aueb.ds.music.framework.model.dto.MusicFile;
+import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 
 import java.io.IOException;

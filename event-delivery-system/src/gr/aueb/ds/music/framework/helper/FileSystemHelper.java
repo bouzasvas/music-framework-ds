@@ -1,8 +1,8 @@
 package gr.aueb.ds.music.framework.helper;
 
 import com.mpatric.mp3agic.*;
-import gr.aueb.ds.music.framework.api.model.dto.MusicFile;
-import gr.aueb.ds.music.framework.api.nodes.api.Publisher;
+import gr.aueb.ds.music.framework.model.dto.MusicFile;
+import gr.aueb.ds.music.framework.nodes.api.Publisher;
 
 import java.io.File;
 import java.io.FileOutputStream;

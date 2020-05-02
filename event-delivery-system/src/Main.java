@@ -2,12 +2,12 @@ import gr.aueb.ds.music.framework.commons.ProgramArguments;
 import gr.aueb.ds.music.framework.commons.SystemExitCodes;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
-import gr.aueb.ds.music.framework.api.nodes.api.Broker;
-import gr.aueb.ds.music.framework.api.nodes.api.Consumer;
-import gr.aueb.ds.music.framework.api.nodes.api.Publisher;
-import gr.aueb.ds.music.framework.api.nodes.impl.BrokerImplementation;
-import gr.aueb.ds.music.framework.api.nodes.impl.ConsumerImplementation;
-import gr.aueb.ds.music.framework.api.nodes.impl.PublisherImplementation;
+import gr.aueb.ds.music.framework.nodes.api.Broker;
+import gr.aueb.ds.music.framework.nodes.api.Consumer;
+import gr.aueb.ds.music.framework.nodes.api.Publisher;
+import gr.aueb.ds.music.framework.nodes.impl.BrokerImplementation;
+import gr.aueb.ds.music.framework.nodes.impl.ConsumerImplementation;
+import gr.aueb.ds.music.framework.nodes.impl.PublisherImplementation;
 
 import java.io.IOException;
 import java.util.List;

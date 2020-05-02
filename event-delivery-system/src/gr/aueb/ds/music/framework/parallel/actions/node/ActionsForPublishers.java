@@ -2,9 +2,9 @@ package gr.aueb.ds.music.framework.parallel.actions.node;
 
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
-import gr.aueb.ds.music.framework.api.model.NodeDetails;
-import gr.aueb.ds.music.framework.api.nodes.api.Publisher;
-import gr.aueb.ds.music.framework.api.nodes.impl.NodeAbstractImplementation;
+import gr.aueb.ds.music.framework.model.NodeDetails;
+import gr.aueb.ds.music.framework.nodes.api.Publisher;
+import gr.aueb.ds.music.framework.nodes.impl.NodeAbstractImplementation;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 
 import java.io.IOException;

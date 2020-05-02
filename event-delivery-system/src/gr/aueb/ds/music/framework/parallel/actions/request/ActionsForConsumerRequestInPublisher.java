@@ -3,8 +3,8 @@ package gr.aueb.ds.music.framework.parallel.actions.request;
 import gr.aueb.ds.music.framework.helper.FileSystemHelper;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
-import gr.aueb.ds.music.framework.api.model.dto.ArtistName;
-import gr.aueb.ds.music.framework.api.model.dto.MusicFile;
+import gr.aueb.ds.music.framework.model.dto.ArtistName;
+import gr.aueb.ds.music.framework.model.dto.MusicFile;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 
 import java.io.IOException;

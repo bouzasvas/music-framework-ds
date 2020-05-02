@@ -1,7 +1,7 @@
 package gr.aueb.ds.music.framework.parallel.actions.node;
 
-import gr.aueb.ds.music.framework.api.model.enums.BrokerIndicator;
-import gr.aueb.ds.music.framework.api.nodes.api.Broker;
+import gr.aueb.ds.music.framework.model.enums.BrokerIndicator;
+import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 
 import java.io.IOException;
