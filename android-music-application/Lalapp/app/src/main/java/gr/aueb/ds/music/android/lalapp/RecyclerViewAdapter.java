@@ -9,12 +9,13 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import gr.aueb.ds.music.framework.model.dto.MusicFile;
+
 public class RecyclerViewAdapter
         extends RecyclerView.Adapter<RecyclerViewAdapter.MusicFileViewHolder> {
-    private List<String> musicFileList;
-    // TODO Change String Template to MusicFile
+    private List<MusicFile> musicFileList;
 
-    public RecyclerViewAdapter(List<String> musicFileList) {
+    public RecyclerViewAdapter(List<MusicFile> musicFileList) {
         this.musicFileList = musicFileList;
     }
 
@@ -32,10 +33,9 @@ public class RecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(@NonNull MusicFileViewHolder holder, int position) {
-        // TODO Comment out below
-        holder.songName.setText(this.musicFileList.get(position));//.getSongName());
-        holder.artistName.setText(this.musicFileList.get(position));//.getArtistName());
-        holder.album.setText(this.musicFileList.get(position));//.getalbumName());
+        holder.songName.setText(this.musicFileList.get(position).getTrackName());
+        holder.artistName.setText(this.musicFileList.get(position).getArtistName());
+        holder.album.setText(this.musicFileList.get(position).getAlbumInfo());
     }
 
     static class MusicFileViewHolder extends RecyclerView.ViewHolder {
