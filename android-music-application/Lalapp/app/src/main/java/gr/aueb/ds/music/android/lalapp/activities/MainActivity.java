@@ -40,18 +40,6 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         recyclerView.addOnItemTouchListener(new gr.aueb.ds.music.android.lalapp.RecyclerItemClickListener(this, recyclerView, this));
-//        ArrayList<MusicFile> list = new ArrayList<>();
-//        MusicFile mf1 = new MusicFile();
-//        MusicFile mf2 = new MusicFile();
-//        MusicFile mf3 = new MusicFile();
-//        mf1.setTrackName("Kostas");
-//        mf2.setTrackName("Tass");
-//        mf3.setTrackName("Vouzas");
-//        list.add(mf1);
-//        list.add(mf2);
-//        list.add(mf3);
-//        adapter = new RecyclerViewAdapter(list);
-//        recyclerView.setAdapter(adapter);
 
         switchButton = findViewById(R.id.offline_switch);
         switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
