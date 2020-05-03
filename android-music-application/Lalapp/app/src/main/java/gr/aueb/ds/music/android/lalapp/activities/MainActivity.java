@@ -6,7 +6,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -42,15 +41,12 @@ public class MainActivity extends AppCompatActivity
         recyclerView.addOnItemTouchListener(new gr.aueb.ds.music.android.lalapp.RecyclerItemClickListener(this, recyclerView, this));
 
         switchButton = findViewById(R.id.offline_switch);
-        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-            }
-        });
+        switchButton.setOnCheckedChangeListener((buttonView, isChecked) ->
+                switchButton.setText(switchButton.isChecked() ? getString(R.string.switch_online) : getString(R.string.switch_offline)));
     }
 
     public void searchForArtists(View view) {
+        recyclerView.setForeground(null);
         // Get ArtistName from InputText
         EditText artistNameInput = findViewById(R.id.artist_name_input);
 
@@ -72,8 +68,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(View view, int position) {
-        Log.d("OnItemClick", "Tap at position" + position);
+        final String TAG = "OnItemClick";
+        Log.d(TAG, "Tap at position" + position);
         Toast.makeText(this, "Tap at position" + position, Toast.LENGTH_SHORT).show();
+
+        boolean online = switchButton.isChecked();
+        Log.d(TAG, online ? "Online" : "Offline");
+
     }
 
     // AsyncTaskProgress instance
