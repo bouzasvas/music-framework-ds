@@ -2,6 +2,8 @@ package gr.aueb.ds.music.android.lalapp.request;
 
 //import gr.aueb.ds.music.framework.error.FileChunksProcessingException;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.List;
@@ -21,13 +23,13 @@ import gr.aueb.ds.music.framework.nodes.api.Consumer;
 public class ConsumerImplementation extends NodeAbstractImplementation implements Consumer {
 
     protected transient Connection connection;
-    protected Broker connectedBroker;
+    protected NodeDetails connectedBrokerDetails;
     public ArtistName artistName;
 
     public List<MusicFile> musicFiles;
 
     public ConsumerImplementation() {
-        super(true);
+        super();
         this.nodeDetails = new NodeDetails();
     }
 
@@ -37,12 +39,12 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     }
 
     @Override
-    public void register(Broker broker, ArtistName artistName) {
+    public void register(NodeDetails connectedBrokerDetails, ArtistName artistName) {
         try {
             // If Appropriate Broker is Master continue the communication
             if (!isAppropriateBrokerMaster()) {
                 this.connection.close();
-                this.connection = new Connection(NetworkHelper.initConnection(broker.getNodeDetails().getIpAddress(), broker.getNodeDetails().getPort()));
+                this.connection = new Connection(NetworkHelper.initConnection(connectedBrokerDetails.getIpAddress(), connectedBrokerDetails.getPort()));
             }
 
             // The following requests is not for Broker Discovery
@@ -92,7 +94,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         this.connect();
 
         // Register to Broker
-        this.register(this.connectedBroker, this.artistName);
+        this.register(this.connectedBrokerDetails, this.artistName);
 
         // Get Tracks from Broker and Print Results
         List<MusicFile> musicFiles;
@@ -197,9 +199,10 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
             this.connection = new Connection(NetworkHelper.initConnection(masterBrokerIpPort.getKey(), masterBrokerIpPort.getValue()));
 
             // Get appropriate broker
-            this.connectedBroker = NetworkHelper.doObjectRequest(this.connection, this.artistName);
+            this.connectedBrokerDetails = NetworkHelper.doObjectRequest(this.connection, this.artistName);
         } catch (Exception ex) {
             // TODO - Logging & Error Handling
+            Log.e("findAppropriateBroker", "Exception", ex);
 //            LogHelper.error(this,
 //                    String.format(PropertiesHelper.getProperty("consumer.node.broker.connection.failed"),
 //                            this.nodeDetails.getName()));
@@ -208,19 +211,18 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     }
 
     private AbstractMap.SimpleEntry<String, Integer> getMasterBrokerIpPort() {
-        Broker masterBroker = this.getMasterBroker();
+        NodeDetails masterBrokerDetails = this.getMasterBrokerDetails();
 
-        if (masterBroker != null) {
-            NodeDetails masterDetails = masterBroker.getNodeDetails();
+        if (masterBrokerDetails != null) {
+            String masterBrokerIp = masterBrokerDetails.getIpAddress();
+            int masterBrokerPort = masterBrokerDetails.getPort();
 
-            String masterBrokerIp = masterDetails.getIpAddress();
-            int masterBrokerPort = masterDetails.getPort();
-
-            return new AbstractMap.SimpleEntry<>(masterBrokerIp, masterBrokerPort);
+            return new AbstractMap.SimpleEntry<>("10.0.2.2", 8080);
+//            return new AbstractMap.SimpleEntry<>(masterBrokerIp, masterBrokerPort);
         }
 
         // TODO - Shared Preferences
-        return new AbstractMap.SimpleEntry<>("localhost", 8080);
+        return new AbstractMap.SimpleEntry<>("10.0.2.2", 8080);
     }
 
     private List<MusicFile> getTrackResults() throws Exception {
@@ -255,7 +257,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     }
 
     private boolean isAppropriateBrokerMaster() {
-        return this.connectedBroker.equals(getMasterBroker());
+        return this.connectedBrokerDetails.equals(getMasterBrokerDetails());
     }
 
     public Connection getConnection() {

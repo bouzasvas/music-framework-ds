@@ -1,21 +1,18 @@
 package gr.aueb.ds.music.android.lalapp.request;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
 import gr.aueb.ds.music.framework.model.NodeDetails;
+import gr.aueb.ds.music.framework.model.enums.NodeType;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Node;
+import gr.aueb.ds.music.framework.requests.NodeRequest;
 
 public abstract class NodeAbstractImplementation implements Node, Serializable {
     private final static long serialVersionUID = 5792977548048762220L;
@@ -27,47 +24,47 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
 
     public NodeAbstractImplementation() { }
 
-    public NodeAbstractImplementation(boolean enableTimer) {
-        if (enableTimer) {
-            // Enable Timer after 1 Minute of Initial Execution
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.MINUTE, 2);
-
-            Date date = cal.getTime();
-            new Timer().scheduleAtFixedRate(new UpdateNodesTimerTask(), date, ONE_MINUTE_MILLIS);
-        }
-    }
+//    public NodeAbstractImplementation(boolean enableTimer) {
+//        if (enableTimer) {
+//            // Enable Timer after 1 Minute of Initial Execution
+//            Calendar cal = Calendar.getInstance();
+//            cal.add(Calendar.MINUTE, 2);
+//
+//            Date date = cal.getTime();
+//            new Timer().scheduleAtFixedRate(new UpdateNodesTimerTask(), date, ONE_MINUTE_MILLIS);
+//        }
+//    }
 
     @Override
     public void updateNodes() {
-        List<Broker> connectedBrokers = getBrokers();
-
-        List<Broker> brokersToBeRemoved = new ArrayList<>();
-
-        // Check Connectivity with Brokers
-        for (Broker broker : connectedBrokers) {
-            if (!broker.equals(this)) {
-                try {
-                    String ip = broker.getNodeDetails().getIpAddress();
-                    int port = broker.getNodeDetails().getPort();
-
-                    NetworkHelper.checkIfHostIsAlive(ip, port);
-                } catch (IOException e) {
-//                    LogHelper.errorWithParams(this, PropertiesHelper.getProperty("broker.liveness.failed"), broker.getNodeDetails().getName());
-                    brokersToBeRemoved.add(broker);
-                }
-            }
-        }
-
-        for (Broker broker : brokersToBeRemoved) broker.disconnect();
+//        List<Broker> connectedBrokers = getBrokers();
+//
+//        List<Broker> brokersToBeRemoved = new ArrayList<>();
+//
+//        // Check Connectivity with Brokers
+//        for (Broker broker : connectedBrokers) {
+//            if (!broker.equals(this)) {
+//                try {
+//                    String ip = broker.getNodeDetails().getIpAddress();
+//                    int port = broker.getNodeDetails().getPort();
+//
+//                    NetworkHelper.checkIfHostIsAlive(ip, port);
+//                } catch (IOException e) {
+////                    LogHelper.errorWithParams(this, PropertiesHelper.getProperty("broker.liveness.failed"), broker.getNodeDetails().getName());
+//                    brokersToBeRemoved.add(broker);
+//                }
+//            }
+//        }
+//
+//        for (Broker broker : brokersToBeRemoved) broker.disconnect();
     }
 
     @Override
     public List<Broker> getBrokers() {
         // If Broker is not Master Broker then Retrieve Brokers from Master
         if (!this.isMasterBroker()) {
-            Broker masterBroker = this.getMasterBroker();
-            this.setBrokers(masterBroker.getBrokers());
+//            Broker masterBroker = this.getMasterBroker();
+//            this.setBrokers(masterBroker.getBrokers());
         }
 
         return this.brokers;
@@ -97,19 +94,20 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
         return this.getNodeDetails().getPort() == 8080;
     }
 
-    protected Broker getMasterBroker() {
-        Broker masterBroker = null;
+    protected NodeDetails getMasterBrokerDetails() {
+        NodeDetails masterBrokerDetails = null;
 
         // TODO - SharedPreferences
-        String masterBrokerIp = "localhost";
+        String masterBrokerIp = "10.0.2.2";
         int masterBrokerPort = 8080;
 
         try (Socket socket = NetworkHelper.initConnection(masterBrokerIp, masterBrokerPort)) {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
-            objectOutputStream.writeObject(this);
-            masterBroker = (Broker) objectInputStream.readObject();
+            NodeRequest nodeRequest = new NodeRequest(NodeType.CONSUMER, this.getNodeDetails());
+            objectOutputStream.writeObject(nodeRequest);
+            masterBrokerDetails = (NodeDetails) objectInputStream.readObject();
         } catch (Exception ex) {
             ex.printStackTrace();
 
@@ -119,7 +117,7 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
         }
 
 //        System.out.println("getMasterBroker() :: Method Returned Master Broker");
-        return masterBroker;
+        return masterBrokerDetails;
     }
 
     // Getters & Setters
@@ -136,13 +134,13 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
     }
 
     // Nested TimerTask class
-    private class UpdateNodesTimerTask extends TimerTask {
-        @Override
-        public void run() {
-//            LogHelper.info(NodeAbstractImplementation.this,
-//                    String.format(PropertiesHelper.getProperty("nodes.timer.executed"), new Date().toString()));
-
-            updateNodes();
-        }
-    }
+//    private class UpdateNodesTimerTask extends TimerTask {
+//        @Override
+//        public void run() {
+////            LogHelper.info(NodeAbstractImplementation.this,
+////                    String.format(PropertiesHelper.getProperty("nodes.timer.executed"), new Date().toString()));
+//
+//            updateNodes();
+//        }
+//    }
 }
