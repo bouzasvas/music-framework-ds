@@ -2,6 +2,7 @@ package gr.aueb.ds.music.framework.parallel.actions.node;
 
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
+import gr.aueb.ds.music.framework.model.NodeDetails;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Consumer;
 import gr.aueb.ds.music.framework.nodes.impl.NodeAbstractImplementation;
@@ -21,16 +22,17 @@ public class ActionsForConsumers extends ActionImplementation implements Action<
 
     @Override
     public void act(Consumer consumer) {
-        Broker masterBroker = this.broker.getBrokers()
+        NodeDetails masterBrokerDetails = this.broker.getBrokers()
                 .stream()
                 .filter(br -> ((NodeAbstractImplementation) br).isMasterBroker())
                 .findFirst()
+                .map(Broker::getNodeDetails)
                 .orElse(null);
 
         // TODO - Add Consumer to all Brokers?
 
         try {
-            this.objectOutputStream.writeObject(masterBroker);
+            this.objectOutputStream.writeObject(masterBrokerDetails);
         } catch (IOException ex) {
             LogHelper.error(this.broker, String.format(PropertiesHelper.getProperty("broker.return.master.to.consumer"), consumer.getNodeDetails().getName()));
         } finally {
