@@ -3,23 +3,26 @@ package gr.aueb.ds.music.framework.parallel.actions.node;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.NodeDetails;
+import gr.aueb.ds.music.framework.model.enums.NodeType;
 import gr.aueb.ds.music.framework.nodes.api.Publisher;
 import gr.aueb.ds.music.framework.nodes.impl.NodeAbstractImplementation;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
+import gr.aueb.ds.music.framework.requests.NodeRequest;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class ActionsForPublishers extends ActionImplementation implements Action<Publisher> {
+public class ActionsForPublishers extends ActionImplementation implements Action<NodeRequest> {
 
     public ActionsForPublishers(ActionImplementation actionImplementation) {
         super(actionImplementation);
     }
 
     @Override
-    public void act(Publisher publisher) {
+    public void act(NodeRequest nodeRequest) {
+        Publisher publisher = nodeRequest.getPublisher();
         this.broker.acceptConnection(publisher);
         if (((NodeAbstractImplementation) this.broker).isMasterBroker()) {
             this.updateAllBrokers(publisher);
@@ -56,7 +59,9 @@ public class ActionsForPublishers extends ActionImplementation implements Action
              ObjectOutputStream os = new ObjectOutputStream(brokerSocket.getOutputStream());
              ObjectInputStream is = new ObjectInputStream(brokerSocket.getInputStream())) {
 
-            os.writeObject(publisher);
+            NodeRequest nodeRequest = new NodeRequest(NodeType.PUBLISHER, publisher.getNodeDetails());
+            nodeRequest.setPublisher(publisher);
+            os.writeObject(nodeRequest);
 
         } catch (IOException e) {
             LogHelper.error(this.broker, String.format(

@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 public class ConsumerImplementation extends NodeAbstractImplementation implements Consumer {
 
     protected transient Connection connection;
-    protected Broker connectedBroker;
+    protected NodeDetails connectedBrokerDetails;
     protected ArtistName artistName;
 
     public ConsumerImplementation() {
@@ -38,18 +38,18 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     }
 
     @Override
-    public void register(Broker broker, ArtistName artistName) {
+    public void register(NodeDetails brokerDetails, ArtistName artistName) {
         try {
             // If Appropriate Broker is Master continue the communication
             if (!isAppropriateBrokerMaster()) {
                 this.connection.close();
-                this.connection = new Connection(NetworkHelper.initConnection(broker.getNodeDetails().getIpAddress(), broker.getNodeDetails().getPort()));
+                this.connection = new Connection(NetworkHelper.initConnection(brokerDetails.getIpAddress(), brokerDetails.getPort()));
             }
 
             // The following requests is not for Broker Discovery
             this.artistName = new ArtistName(this.artistName.getArtistName(), false);
         } catch (IOException ex) {
-            LogHelper.error(this, String.format(PropertiesHelper.getProperty("consumer.register.broker.error"), broker.getNodeDetails().getName()));
+            LogHelper.error(this, String.format(PropertiesHelper.getProperty("consumer.register.broker.error"), brokerDetails.getName()));
         }
     }
 
@@ -102,7 +102,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
             this.connect();
 
             // Register to Broker
-            this.register(this.connectedBroker, this.artistName);
+            this.register(this.connectedBrokerDetails, this.artistName);
 
             // Get Tracks from Broker and Print Results
             List<MusicFile> musicFiles;
@@ -269,7 +269,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
             this.connection = new Connection(NetworkHelper.initConnection(masterBrokerIpPort.getKey(), masterBrokerIpPort.getValue()));
 
             // Get appropriate broker
-            this.connectedBroker = NetworkHelper.doObjectRequest(this.connection, this.artistName);
+            this.connectedBrokerDetails = NetworkHelper.doObjectRequest(this.connection, this.artistName);
         } catch (Exception ex) {
             LogHelper.error(this,
                     String.format(PropertiesHelper.getProperty("consumer.node.broker.connection.failed"),
@@ -279,15 +279,13 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     }
 
     private AbstractMap.SimpleEntry<String, Integer> getMasterBrokerIpPort() {
-        Broker masterBroker = this.getMasterBroker();
+        NodeDetails masterBrokerDetails = this.getMasterBrokerDetails();
 
-        String masterBrokerIp = Optional.ofNullable(masterBroker)
-                .map(Node::getNodeDetails)
+        String masterBrokerIp = Optional.ofNullable(masterBrokerDetails)
                 .map(NodeDetails::getIpAddress)
                 .orElse(PropertiesHelper.getProperty("master.broker.ip"));
 
-        int masterBrokerPort = Optional.ofNullable(masterBroker)
-                .map(Node::getNodeDetails)
+        int masterBrokerPort = Optional.ofNullable(masterBrokerDetails)
                 .map(NodeDetails::getPort)
                 .orElse(Integer.parseInt(PropertiesHelper.getProperty("master.broker.port")));
 
@@ -313,7 +311,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         } catch (IOException | ClassNotFoundException ex) {
             throw new Exception(String.format(
                     PropertiesHelper.getProperty("consumer.retrieve.tracks.list.failed"),
-                    this.connectedBroker.getNodeDetails().getName())
+                    this.connectedBrokerDetails.getName())
             );
         }
 
@@ -321,7 +319,7 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     }
 
     private boolean isAppropriateBrokerMaster() {
-        return this.connectedBroker.equals(getMasterBroker());
+        return this.connectedBrokerDetails.equals(getMasterBrokerDetails());
     }
 
     public Connection getConnection() {

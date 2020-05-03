@@ -3,10 +3,11 @@ package gr.aueb.ds.music.framework.parallel.actions.node;
 import gr.aueb.ds.music.framework.model.enums.BrokerIndicator;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
+import gr.aueb.ds.music.framework.requests.NodeRequest;
 
 import java.io.IOException;
 
-public class ActionsForBrokers extends ActionImplementation implements Action<Broker> {
+public class ActionsForBrokers extends ActionImplementation implements Action<NodeRequest> {
 
     private ActionsForBrokers() {
     }
@@ -16,7 +17,8 @@ public class ActionsForBrokers extends ActionImplementation implements Action<Br
     }
 
     @Override
-    public void act(Broker clientBroker) {
+    public void act(NodeRequest nodeRequest) {
+        Broker clientBroker = nodeRequest.getBroker();
         try {
             // Send Existing Master Broker
             this.objectOutputStream.writeObject(this.broker);
