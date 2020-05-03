@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.android.lalapp.activities;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        recyclerView.addOnItemTouchListener(new gr.aueb.ds.music.android.lalapp.RecyclerItemClickListener(this, recyclerView, this));
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, recyclerView, this));
         ArrayList<MusicFile> list = new ArrayList<>();
         MusicFile mf1 = new MusicFile();
         MusicFile mf2 = new MusicFile();
@@ -56,12 +57,13 @@ public class MainActivity extends AppCompatActivity
         switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+                switchButton.setText(switchButton.isChecked() ? "Online" : "Offline");
             }
         });
     }
 
     public void searchForArtists(View view) {
+        recyclerView.setForeground(null);
         // Get ArtistName from InputText
         EditText artistNameInput = findViewById(R.id.artist_name_input);
 
@@ -79,7 +81,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(View view, int position) {
-        Log.d("OnItemClick", "Tap at position" + position);
+        final String TAG = "OnItemClick";
+        Log.d(TAG, "Tap at position" + position);
         Toast.makeText(this, "Tap at position" + position, Toast.LENGTH_SHORT).show();
+
+        boolean online = switchButton.isChecked();
+        Log.d(TAG, online ? "Online" : "Offline");
+
     }
 }

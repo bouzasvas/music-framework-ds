@@ -1,5 +1,6 @@
 package gr.aueb.ds.music.android.lalapp;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -33,6 +34,11 @@ public class RecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(@NonNull MusicFileViewHolder holder, int position) {
+        if (position % 2 == 0)
+            holder.itemView.setBackgroundColor(Color.parseColor("#f2ffe5"));
+        else
+            holder.itemView.setBackgroundColor(Color.parseColor("#f7f5ed"));
+
         holder.songName.setText(this.musicFileList.get(position).getTrackName());
         holder.artistName.setText(this.musicFileList.get(position).getArtistName());
         holder.album.setText(this.musicFileList.get(position).getAlbumInfo());
