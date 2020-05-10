@@ -1,14 +1,11 @@
 package gr.aueb.ds.music.android.lalapp.activities;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -19,11 +16,16 @@ import gr.aueb.ds.music.android.lalapp.helpers.LogHelper;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
 import gr.aueb.ds.music.android.lalapp.request.async.AsyncTaskProgress;
 import gr.aueb.ds.music.android.lalapp.request.async.BrokerAsyncRequest;
+import gr.aueb.ds.music.android.lalapp.request.async.TrackAsyncRequest;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
+import gr.aueb.ds.music.framework.nodes.api.Consumer;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends ParentActivity
         implements RecyclerItemClickListener.OnRecyclerClickListener{
+
+    private Consumer consumer;
+    private List<MusicFile> retrievedMusicFiles;
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
@@ -58,7 +60,10 @@ public class MainActivity extends AppCompatActivity
             NotificationsHelper.showToastNotification(getApplicationContext(), getString(R.string.search_artist_toast), artistName);
 
             // Send Request to AsyncTask
-            new BrokerAsyncRequest(this.asyncTaskProgress).execute(artistNameReq);
+            BrokerAsyncRequest brokerAsyncRequest = new BrokerAsyncRequest(this.asyncTaskProgress, this.getAllSettings());
+            brokerAsyncRequest.execute(artistNameReq);
+
+            this.consumer = brokerAsyncRequest.getConsumer();
         }
         catch (Exception ex) {
             LogHelper.logError(getClass(), "Could not Retrieve input value from artist_name_input EditText");
@@ -68,19 +73,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(View view, int position) {
-        final String TAG = "OnItemClick";
-        Log.d(TAG, "Tap at position" + position);
-        Toast.makeText(this, "Tap at position" + position, Toast.LENGTH_SHORT).show();
+        boolean onlineMode = switchButton.isChecked();
 
-        boolean online = switchButton.isChecked();
-        Log.d(TAG, online ? "Online" : "Offline");
+        MusicFile selectedTrack = this.retrievedMusicFiles.get(position);
 
+        TrackAsyncRequest trackAsyncRequest = new TrackAsyncRequest(getApplicationContext(), this.consumer, onlineMode);
+        trackAsyncRequest.execute(selectedTrack);
     }
 
     // AsyncTaskProgress instance
     private AsyncTaskProgress asyncTaskProgress = new AsyncTaskProgress() {
         @Override
         public void onSuccessfulRequest(List<MusicFile> musicFiles) {
+            MainActivity.this.retrievedMusicFiles = musicFiles;
             adapter = new RecyclerViewAdapter(musicFiles);
             recyclerView.setAdapter(adapter);
         }

@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import gr.aueb.ds.music.android.lalapp.request.ConsumerImplementation;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
@@ -17,9 +18,9 @@ public class BrokerAsyncRequest extends AsyncTask<ArtistName, Void, List<MusicFi
 
     private Consumer consumer;
 
-    public BrokerAsyncRequest(AsyncTaskProgress asyncTaskProgress) {
+    public BrokerAsyncRequest(AsyncTaskProgress asyncTaskProgress, Map<String, ?> applicationSettings) {
         this.asyncTaskProgress = asyncTaskProgress;
-        this.consumer = new ConsumerImplementation("android-application");
+        this.consumer = new ConsumerImplementation("android-application", applicationSettings);
     }
 
     @Override
@@ -50,6 +51,10 @@ public class BrokerAsyncRequest extends AsyncTask<ArtistName, Void, List<MusicFi
         }
 
         this.asyncTaskProgress.onSuccessfulRequest(musicFiles);
+    }
+
+    public Consumer getConsumer() {
+        return consumer;
     }
 
     // Private Class for Error Handling

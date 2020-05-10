@@ -7,4 +7,15 @@
     <string name="switch_offline">Offline</string>
     <string name="switch_online">Online</string>
     <string name="master_connection_failed">Connection to Master @ {}:{} failed</string>
+    <string name="menu_settings">Settings</string>
+    <string name="settings_lang_label">Language</string>
+    <string name="settiings_lang_eng">English</string>
+    <string name="settings_lang_gr">Greek</string>
+    <string name="settings_master_ip_label">Master IP</string>
+    <string name="settings_master_port_label">Master Port</string>
+    <string name="app_shared_prefs">lalapp_settings</string>
+    <string name="settings_save_btn_label">Save</string>
+    <string name="settings_cancel_btn_label">Cancel</string>
+    <string name="play_track_failure">Unable to play Track: \"{}\"</string>
+    <string name="track_downloaded">Track {} has successfully downloaded!</string>
 </resources>

@@ -8,4 +8,15 @@
     <string name="switch_offline">Offline</string>
     <string name="switch_online">Online</string>
     <string name="master_connection_failed">Αδυναμία σύνδεσης στον Master @ {}:{}</string>
+    <string name="menu_settings">Ρυθμίσεις</string>
+    <string name="settings_lang_label">Γλώσσα</string>
+    <string name="settiings_lang_eng">Αγγλικά</string>
+    <string name="settings_lang_gr">Ελληνικά</string>
+    <string name="settings_master_ip_label">Διεύθυνση IP Master</string>
+    <string name="settings_master_port_label">Master Port</string>
+    <string name="app_shared_prefs">lalapp_settings</string>
+    <string name="settings_save_btn_label">Αποθήκευση</string>
+    <string name="settings_cancel_btn_label">Ακύρωση</string>
+    <string name="play_track_failure">Αδυναμία Αναπαραγωγής του Κομματιού: \"{}\"</string>
+    <string name="track_downloaded">Επιτυχής λήψη τραγουδιού {}</string>
 </resources>
