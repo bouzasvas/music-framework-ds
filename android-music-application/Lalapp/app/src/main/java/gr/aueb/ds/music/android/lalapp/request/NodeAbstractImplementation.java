@@ -5,7 +5,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
 import gr.aueb.ds.music.framework.model.NodeDetails;
@@ -22,7 +24,17 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
     protected List<Broker> brokers = new ArrayList<>();
     protected NodeDetails nodeDetails;
 
+    protected Map<String, String> applicationSettings;
+
     public NodeAbstractImplementation() { }
+
+    public NodeAbstractImplementation(Map<String, ?> applicationSettings) {
+        this.applicationSettings = new HashMap<>();
+
+        for (Map.Entry<String, ?> entry : applicationSettings.entrySet()) {
+            this.applicationSettings.put(entry.getKey(), String.valueOf(entry.getValue()));
+        }
+    }
 
 //    public NodeAbstractImplementation(boolean enableTimer) {
 //        if (enableTimer) {
@@ -90,16 +102,14 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
 
     // Helper Methods
     public boolean isMasterBroker() {
-        // TODO - SharedPreferences
-        return this.getNodeDetails().getPort() == 8080;
+        return this.getNodeDetails().getPort() == Integer.parseInt(applicationSettings.get("master_port"));
     }
 
     protected NodeDetails getMasterBrokerDetails() {
         NodeDetails masterBrokerDetails = null;
 
-        // TODO - SharedPreferences
-        String masterBrokerIp = "10.0.2.2";
-        int masterBrokerPort = 8080;
+        String masterBrokerIp = applicationSettings.get("master_ip");
+        int masterBrokerPort = Integer.parseInt(applicationSettings.get("master_port"));
 
         try (Socket socket = NetworkHelper.initConnection(masterBrokerIp, masterBrokerPort)) {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());

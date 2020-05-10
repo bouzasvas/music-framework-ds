@@ -4,9 +4,12 @@ package gr.aueb.ds.music.android.lalapp.request;
 
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
@@ -33,8 +36,13 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         this.nodeDetails = new NodeDetails();
     }
 
-    public ConsumerImplementation(String name) {
-        this();
+    public ConsumerImplementation(Map<String, ?> applicationSettings) {
+        super(applicationSettings);
+        this.nodeDetails = new NodeDetails();
+    }
+
+    public ConsumerImplementation(String name, Map<String, ?> applicationSettings) {
+        this(applicationSettings);
         this.nodeDetails.setName(name);
     }
 
@@ -72,13 +80,17 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 //        }
     }
 
-    private void downloadSelectedTrack(Value value) {
+    public MusicFile downloadSelectedTrack(Value value) {
         MusicFile finalMusicFile = null;
-//        try {
-//            List<byte[]> fileChunks = this.retrieveChunksOfMusicFile(value);
-//            finalMusicFile = this.mergeChunks(value, fileChunks);
-//
+        try {
+            List<byte[]> fileChunks = this.retrieveChunksOfMusicFile(value);
+            finalMusicFile = this.mergeChunks(value, fileChunks);
+
 //            FileSystemHelper.saveMusicFileToFileSystem(finalMusicFile, true);
+        }
+        catch (Exception ex) {
+
+        }
 //        } catch (FileChunksProcessingException ex) {
 //            // TODO -- Error Handling & Logging
 ////            LogHelper.errorWithParams(this, ex.getMessage(), value.getMusicFile().toString());
@@ -86,6 +98,8 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 //            // TODO -- Error Handling & Logging
 ////            LogHelper.errorWithParams(this, PropertiesHelper.getProperty("consumer.save.file.to.disk"), value.getMusicFile().toString());
 //        }
+
+        return finalMusicFile;
     }
 
     @Override
@@ -158,40 +172,42 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 //        }
 //    }
 
-//    private List<byte[]> retrieveChunksOfMusicFile(Value value) throws FileChunksProcessingException {
-//        List<byte[]> musicFileBytesList = new ArrayList<>();
-//
-//        try {
-//            // Do Request and Retrieve Chunks one by one
-//            MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
-//            musicFileBytesList.add(musicFile.getMusicFileExtract());
-//
-//            while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
-//                musicFileBytesList.add(musicFile.getMusicFileExtract());
-//            }
-//        } catch (IOException | ClassNotFoundException ex) {
+    private List<byte[]> retrieveChunksOfMusicFile(Value value) throws Exception {
+        List<byte[]> musicFileBytesList = new ArrayList<>();
+
+        try {
+            // Do Request and Retrieve Chunks one by one
+            MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
+            musicFileBytesList.add(musicFile.getMusicFileExtract());
+
+            while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
+                musicFileBytesList.add(musicFile.getMusicFileExtract());
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            throw new Exception("");
 //            throw new FileChunksProcessingException("consumer.get.file.chunks");
-//        }
+        }
+
+        return musicFileBytesList;
+    }
 //
-//        return musicFileBytesList;
-//    }
-//
-//    private MusicFile mergeChunks(Value value, List<byte[]> musicFileChunks) throws FileChunksProcessingException {
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//
-//        MusicFile wholeFile = new MusicFile(value.getMusicFile());
-//        try {
-//            for (byte[] bytes : musicFileChunks) {
-//                byteArrayOutputStream.write(bytes);
-//            }
-//
-//            wholeFile.setMusicFileExtract(byteArrayOutputStream.toByteArray());
-//        } catch (IOException e) {
+    private MusicFile mergeChunks(Value value, List<byte[]> musicFileChunks) throws Exception {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        MusicFile wholeFile = new MusicFile(value.getMusicFile());
+        try {
+            for (byte[] bytes : musicFileChunks) {
+                byteArrayOutputStream.write(bytes);
+            }
+
+            wholeFile.setMusicFileExtract(byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            throw new Exception("");
 //            throw new FileChunksProcessingException("consumer.merge.file.chunks");
-//        }
-//
-//        return wholeFile;
-//    }
+        }
+
+        return wholeFile;
+    }
 
     private void findAppropriateBroker() {
         try {
@@ -217,12 +233,13 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
             String masterBrokerIp = masterBrokerDetails.getIpAddress();
             int masterBrokerPort = masterBrokerDetails.getPort();
 
-            return new AbstractMap.SimpleEntry<>("10.0.2.2", 8080);
-//            return new AbstractMap.SimpleEntry<>(masterBrokerIp, masterBrokerPort);
+//            return new AbstractMap.SimpleEntry<>("10.0.2.2", 8080);
+            return new AbstractMap.SimpleEntry<>(masterBrokerIp, masterBrokerPort);
         }
 
-        // TODO - Shared Preferences
-        return new AbstractMap.SimpleEntry<>("10.0.2.2", 8080);
+        String masterBrokerIp = applicationSettings.get("master_ip");
+        int masterBrokerPort = Integer.parseInt(applicationSettings.get("master_port"));
+        return new AbstractMap.SimpleEntry<>(masterBrokerIp, masterBrokerPort);
     }
 
     private List<MusicFile> getTrackResults() throws Exception {
