@@ -1,6 +1,7 @@
 package gr.aueb.ds.music.android.lalapp.activities;
 
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -88,6 +89,7 @@ public class MainActivity extends ParentActivity
             MainActivity.this.retrievedMusicFiles = musicFiles;
             adapter = new RecyclerViewAdapter(musicFiles);
             recyclerView.setAdapter(adapter);
+            recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         }
 
         @Override

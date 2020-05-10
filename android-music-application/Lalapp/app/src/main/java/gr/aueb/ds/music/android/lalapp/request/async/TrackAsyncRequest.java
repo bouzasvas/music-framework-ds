@@ -34,7 +34,7 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
             NotificationsHelper.showToastNotification(context, context.getString(R.string.track_downloaded), musicFile.getTrackName());
         }
         else {
-            this.playTrack(musicFile);
+            this.playTrackInPlayerActivity(musicFile);
         }
     }
 }
