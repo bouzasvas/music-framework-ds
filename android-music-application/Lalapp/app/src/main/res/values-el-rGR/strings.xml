@@ -19,4 +19,7 @@
     <string name="settings_cancel_btn_label">Ακύρωση</string>
     <string name="play_track_failure">Αδυναμία Αναπαραγωγής του Κομματιού: \"{}\"</string>
     <string name="track_downloaded">Επιτυχής λήψη τραγουδιού {}</string>
+    <string name="dialog_loading">Φόρτωση...</string>
+    <string name="async_task_connection_error">Αποτυχία Σύνδεσης!</string>
+    <string name="async_task_no_results">Δεν βρέθηκαν τραγούδια</string>
 </resources>

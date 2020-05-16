@@ -1,8 +1,10 @@
-package gr.aueb.ds.music.android.lalapp;
+package gr.aueb.ds.music.android.lalapp.activities;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -19,56 +21,69 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+import gr.aueb.ds.music.android.lalapp.R;
+import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public class PlayerActivity extends AppCompatActivity {
 
-    public static MusicFile musicFile;
+    private SimpleExoPlayer player;
+    private String tmpMusicFileName;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-//        MusicFile musicFile = initMusicFile();
-        playTrack(musicFile);
+        byte[] musicFileBytes = initMusicFile();
+        playTrack(musicFileBytes);
     }
 
-    private MusicFile initMusicFile() {
-        MusicFile musicFile = null;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
+        this.player.stop();
+        AppFileOperations.deleteTmpFile(this, this.tmpMusicFileName);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private byte[] initMusicFile() {
+        byte[] musicFileBytes = null;
         try {
             Intent intent = getIntent();
 
-            musicFile = (MusicFile) intent.getExtras().get("musicFile");
+            this.tmpMusicFileName = (String) intent.getExtras().get("musicFile");
+            musicFileBytes = AppFileOperations.getFileBytes(this, this.tmpMusicFileName);
         }
         catch (Exception ex) {
             // TODO
         }
 
-        return musicFile;
+        return musicFileBytes;
     }
 
-    private void playTrack(MusicFile musicFile) {
+    private void playTrack(byte[] musicFileBytes) {
         DefaultRenderersFactory defaultRenderersFactory = new DefaultRenderersFactory(
                 getApplicationContext(), null, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
         );
 
         TrackSelector trackSelector = new DefaultTrackSelector();
 
-        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(defaultRenderersFactory, trackSelector);
+        this.player = ExoPlayerFactory.newSimpleInstance(defaultRenderersFactory, trackSelector);
 
         String userAgent = Util.getUserAgent(getApplicationContext(), "Lalapp");
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(), userAgent);
 
         // This is the MediaSource representing the media to be played.
-        MediaSource musicSource = createMediaSourceFromByteArray(musicFile.getMusicFileExtract());
+        MediaSource musicSource = createMediaSourceFromByteArray(musicFileBytes);
 
         // Prepare the player with the source.
-        player.prepare(musicSource);
+        this.player.prepare(musicSource);
 
         attachPlayerToView(player);
-        player.setPlayWhenReady(true);
+        this.player.setPlayWhenReady(true);
     }
 
     // Helper Methods

@@ -16,6 +16,8 @@ public class RecyclerItemClickListener extends RecyclerView.SimpleOnItemTouchLis
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             View childView = recyclerView.findChildViewUnder(e.getX(), e.getY());
+            if (childView == null) return false;
+
             listener.onItemClick(childView, recyclerView.getChildAdapterPosition(childView));
             return true;
         }

@@ -11,8 +11,10 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 
-import gr.aueb.ds.music.android.lalapp.PlayerActivity;
+import gr.aueb.ds.music.android.lalapp.activities.PlayerActivity;
 import gr.aueb.ds.music.android.lalapp.R;
+import gr.aueb.ds.music.android.lalapp.common.AppCommon;
+import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
@@ -21,11 +23,16 @@ public abstract class MusicFilesManipulationAsync extends AsyncTask<MusicFile, V
     @SuppressLint("StaticFieldLeak")
     protected Context context;
 
-    private ProgressDialog progressDialog;
-
     @Override
     protected void onPreExecute() {
-//        this.progressDialog = ProgressDialog.show(context, "Test", "Test", true);
+        super.onPreExecute();
+        AppCommon.showDialog(this.context, context.getString(R.string.dialog_loading));
+    }
+
+    @Override
+    protected void onPostExecute(MusicFile musicFile) {
+        super.onPostExecute(musicFile);
+        AppCommon.dismissDialog();
     }
 
     public MusicFilesManipulationAsync(Context context) {
@@ -33,27 +40,22 @@ public abstract class MusicFilesManipulationAsync extends AsyncTask<MusicFile, V
     }
 
     protected void playTrackInPlayerActivity(MusicFile musicFile) {
+        musicFile.setTrackName("tmp_" + musicFile.getTrackName());
+        saveFileInDevice(musicFile);
+
         Intent playerActivityIntent = new Intent(context, PlayerActivity.class);
         playerActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        playerActivityIntent.putExtra("musicFile", musicFile);
-
-        // TODO -- Vres lysh malaka
-        PlayerActivity.musicFile = musicFile;
+        playerActivityIntent.putExtra("musicFile", musicFile.getTrackName());
 
         context.startActivity(playerActivityIntent);
     }
 
     protected void saveFileInDevice(MusicFile musicFile) {
-        File applicationFilesFolder = this.context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
-        File file = new File(applicationFilesFolder, musicFile.getTrackName().concat(".mp3"));
-
-        try (FileOutputStream fos = new FileOutputStream(file)){
-            fos.write(musicFile.getMusicFileExtract());
+        try {
+            AppFileOperations.saveMusicFileInDevice(this.context, musicFile);
         } catch (Exception ex) {
             Log.e(MusicFilesManipulationAsync.class.getSimpleName(), "saveFileInDevice: ", ex);
             NotificationsHelper.showToastNotification(context, context.getString(R.string.play_track_failure), musicFile.getTrackName());
         }
-
-//        this.progressDialog.dismiss();
     }
 }

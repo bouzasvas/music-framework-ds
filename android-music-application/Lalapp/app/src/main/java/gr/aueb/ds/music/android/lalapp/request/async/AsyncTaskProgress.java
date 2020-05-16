@@ -6,5 +6,5 @@ import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public interface AsyncTaskProgress {
     void onSuccessfulRequest(List<MusicFile> musicFiles);
-    void onFailedRequest();
+    void onFailedRequest(AsyncTaskError asyncTaskError);
 }
