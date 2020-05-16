@@ -18,4 +18,7 @@
     <string name="settings_cancel_btn_label">Cancel</string>
     <string name="play_track_failure">Unable to play Track: \"{}\"</string>
     <string name="track_downloaded">Track {} has successfully downloaded!</string>
+    <string name="dialog_loading">Loading...</string>
+    <string name="async_task_connection_error">Connection Failed!</string>
+    <string name="async_task_no_results">No Music Tracks found</string>
 </resources>

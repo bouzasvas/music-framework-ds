@@ -1,11 +1,14 @@
 package gr.aueb.ds.music.android.lalapp.request.async;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import gr.aueb.ds.music.android.lalapp.R;
 import gr.aueb.ds.music.android.lalapp.request.ConsumerImplementation;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
@@ -16,9 +19,12 @@ public class BrokerAsyncRequest extends AsyncTask<ArtistName, Void, List<MusicFi
     private AsyncTaskProgress asyncTaskProgress;
     private AsyncTaskError error;
 
+    private Context context;
+
     private Consumer consumer;
 
-    public BrokerAsyncRequest(AsyncTaskProgress asyncTaskProgress, Map<String, ?> applicationSettings) {
+    public BrokerAsyncRequest(Context context, AsyncTaskProgress asyncTaskProgress, Map<String, ?> applicationSettings) {
+        this.context = context;
         this.asyncTaskProgress = asyncTaskProgress;
         this.consumer = new ConsumerImplementation("android-application", applicationSettings);
     }
@@ -33,9 +39,13 @@ public class BrokerAsyncRequest extends AsyncTask<ArtistName, Void, List<MusicFi
             this.consumer.init();
 
             return ((ConsumerImplementation) this.consumer).musicFiles;
-        } catch (IOException e) {
+        } catch (RuntimeException | IOException e) {
+            this.error = new AsyncTaskError();
+            this.error.setErrorMessage(this.context.getString(R.string.async_task_connection_error));
+            this.error.setException(e);
+            this.error.setConnectionError(true);
 
-            e.printStackTrace();
+            Log.e(getClass().getSimpleName(), "doInBackground: ", e);
         }
 
         // Send Request to Master Broker
@@ -46,48 +56,23 @@ public class BrokerAsyncRequest extends AsyncTask<ArtistName, Void, List<MusicFi
     protected void onPostExecute(List<MusicFile> musicFiles) {
         super.onPostExecute(musicFiles);
 
-        if (this.error != null) {
-            this.asyncTaskProgress.onFailedRequest();
+        // No Music Files found for Artist
+        if (musicFiles == null) {
+            this.error = new AsyncTaskError();
+            this.error.setErrorMessage(this.context.getString(R.string.async_task_no_results));
+
+            this.asyncTaskProgress.onFailedRequest(this.error);
         }
 
-        this.asyncTaskProgress.onSuccessfulRequest(musicFiles);
+        if (this.error != null) {
+            this.asyncTaskProgress.onFailedRequest(this.error);
+        }
+        else {
+            this.asyncTaskProgress.onSuccessfulRequest(musicFiles);
+        }
     }
 
     public Consumer getConsumer() {
         return consumer;
-    }
-
-    // Private Class for Error Handling
-    private class AsyncTaskError {
-        private String errorMessage;
-        private Boolean connectionError;
-        private Exception exception;
-
-        public AsyncTaskError() {
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
-        }
-
-        public void setErrorMessage(String errorMessage) {
-            this.errorMessage = errorMessage;
-        }
-
-        public Boolean getConnectionError() {
-            return connectionError;
-        }
-
-        public void setConnectionError(Boolean connectionError) {
-            this.connectionError = connectionError;
-        }
-
-        public Exception getException() {
-            return exception;
-        }
-
-        public void setException(Exception exception) {
-            this.exception = exception;
-        }
     }
 }

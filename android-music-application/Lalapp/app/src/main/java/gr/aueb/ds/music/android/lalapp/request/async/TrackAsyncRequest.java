@@ -29,6 +29,8 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
 
     @Override
     protected void onPostExecute(MusicFile musicFile) {
+        super.onPostExecute(musicFile);
+
         if (!onlineMode) {
             this.saveFileInDevice(musicFile);
             NotificationsHelper.showToastNotification(context, context.getString(R.string.track_downloaded), musicFile.getTrackName());

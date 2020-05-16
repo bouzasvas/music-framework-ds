@@ -6,6 +6,8 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -212,17 +214,15 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
     private void findAppropriateBroker() {
         try {
             AbstractMap.SimpleEntry<String, Integer> masterBrokerIpPort = this.getMasterBrokerIpPort();
-            this.connection = new Connection(NetworkHelper.initConnection(masterBrokerIpPort.getKey(), masterBrokerIpPort.getValue()));
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(masterBrokerIpPort.getKey(), masterBrokerIpPort.getValue()), 10000);
+            this.connection = new Connection(socket);
 
             // Get appropriate broker
             this.connectedBrokerDetails = NetworkHelper.doObjectRequest(this.connection, this.artistName);
         } catch (Exception ex) {
-            // TODO - Logging & Error Handling
             Log.e("findAppropriateBroker", "Exception", ex);
-//            LogHelper.error(this,
-//                    String.format(PropertiesHelper.getProperty("consumer.node.broker.connection.failed"),
-//                            this.nodeDetails.getName()));
-//            System.exit(SystemExitCodes.MASTER_NOT_FOUND_ERROR.getCode());
+            throw new RuntimeException(ex);
         }
     }
 

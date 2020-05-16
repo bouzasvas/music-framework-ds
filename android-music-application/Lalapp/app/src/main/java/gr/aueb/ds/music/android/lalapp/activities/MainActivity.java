@@ -1,6 +1,8 @@
 package gr.aueb.ds.music.android.lalapp.activities;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,8 +15,10 @@ import java.util.List;
 import gr.aueb.ds.music.android.lalapp.R;
 import gr.aueb.ds.music.android.lalapp.RecyclerItemClickListener;
 import gr.aueb.ds.music.android.lalapp.RecyclerViewAdapter;
+import gr.aueb.ds.music.android.lalapp.common.AppCommon;
 import gr.aueb.ds.music.android.lalapp.helpers.LogHelper;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
+import gr.aueb.ds.music.android.lalapp.request.async.AsyncTaskError;
 import gr.aueb.ds.music.android.lalapp.request.async.AsyncTaskProgress;
 import gr.aueb.ds.music.android.lalapp.request.async.BrokerAsyncRequest;
 import gr.aueb.ds.music.android.lalapp.request.async.TrackAsyncRequest;
@@ -37,6 +41,7 @@ public class MainActivity extends ParentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initOnLayoutTouchListener();
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -48,7 +53,17 @@ public class MainActivity extends ParentActivity
                 switchButton.setText(switchButton.isChecked() ? getString(R.string.switch_online) : getString(R.string.switch_offline)));
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private void initOnLayoutTouchListener() {
+        ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.main_activity_layout);
+        layout.setOnTouchListener((view, event) -> {
+            AppCommon.hideKeyboard(this, view);
+            return false;
+        });
+    }
+
     public void searchForArtists(View view) {
+        AppCommon.hideKeyboard(this, view);
         recyclerView.setForeground(null);
         // Get ArtistName from InputText
         EditText artistNameInput = findViewById(R.id.artist_name_input);
@@ -61,7 +76,7 @@ public class MainActivity extends ParentActivity
             NotificationsHelper.showToastNotification(getApplicationContext(), getString(R.string.search_artist_toast), artistName);
 
             // Send Request to AsyncTask
-            BrokerAsyncRequest brokerAsyncRequest = new BrokerAsyncRequest(this.asyncTaskProgress, this.getAllSettings());
+            BrokerAsyncRequest brokerAsyncRequest = new BrokerAsyncRequest(MainActivity.this, this.asyncTaskProgress, this.getAllSettings());
             brokerAsyncRequest.execute(artistNameReq);
 
             this.consumer = brokerAsyncRequest.getConsumer();
@@ -78,7 +93,7 @@ public class MainActivity extends ParentActivity
 
         MusicFile selectedTrack = this.retrievedMusicFiles.get(position);
 
-        TrackAsyncRequest trackAsyncRequest = new TrackAsyncRequest(getApplicationContext(), this.consumer, onlineMode);
+        TrackAsyncRequest trackAsyncRequest = new TrackAsyncRequest(MainActivity.this, this.consumer, onlineMode);
         trackAsyncRequest.execute(selectedTrack);
     }
 
@@ -93,9 +108,9 @@ public class MainActivity extends ParentActivity
         }
 
         @Override
-        public void onFailedRequest() {
+        public void onFailedRequest(AsyncTaskError asyncTaskError) {
 //            NotificationsHelper.showToastNotification(this.context, this.error.getErrorMessage(), this.masterHostIP, String.valueOf(this.masterPort));
-            NotificationsHelper.showToastNotification(getApplicationContext(), "Connection failed!");
+            NotificationsHelper.showToastNotification(getApplicationContext(), asyncTaskError.getErrorMessage());
         }
     };
 }

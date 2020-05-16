@@ -3,6 +3,7 @@ package gr.aueb.ds.music.android.lalapp.request;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,7 +112,10 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
         String masterBrokerIp = applicationSettings.get("master_ip");
         int masterBrokerPort = Integer.parseInt(applicationSettings.get("master_port"));
 
-        try (Socket socket = NetworkHelper.initConnection(masterBrokerIp, masterBrokerPort)) {
+        try {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(masterBrokerIp, masterBrokerPort), 10000);
+
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
@@ -119,14 +123,9 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
             objectOutputStream.writeObject(nodeRequest);
             masterBrokerDetails = (NodeDetails) objectInputStream.readObject();
         } catch (Exception ex) {
-            ex.printStackTrace();
-
-//
-//            LogHelper.error(String.format(PropertiesHelper.getProperty("broker.master.node.required"), masterBrokerIp, masterBrokerPort));
-//            System.exit(SystemExitCodes.MASTER_NOT_FOUND_ERROR.getCode());
+            throw new RuntimeException(ex);
         }
 
-//        System.out.println("getMasterBroker() :: Method Returned Master Broker");
         return masterBrokerDetails;
     }
 
