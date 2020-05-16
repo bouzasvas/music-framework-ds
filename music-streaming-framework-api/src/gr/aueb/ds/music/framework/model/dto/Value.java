@@ -1,8 +1,5 @@
 package gr.aueb.ds.music.framework.model.dto;
 
-import gr.aueb.ds.music.framework.model.network.ObjectOverNetwork;
-
-import java.io.Serializable;
 import java.util.Objects;
 
 public class Value implements MusicData<Value> {

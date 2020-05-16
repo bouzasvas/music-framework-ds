@@ -1,10 +1,8 @@
 package gr.aueb.ds.music.framework.error;
 
-import gr.aueb.ds.music.framework.helper.PropertiesHelper;
-
 public class PublisherNotFoundException extends Exception {
 
-    private static final String PUBLISHER_NOT_FOUND_MSG = PropertiesHelper.getProperty("publisher.not.found.for.artist");
+    private static final String PUBLISHER_NOT_FOUND_MSG = "Could not find Publisher that serves the Artist \"%s\"";
 
     public PublisherNotFoundException() {
         this("Unknown");

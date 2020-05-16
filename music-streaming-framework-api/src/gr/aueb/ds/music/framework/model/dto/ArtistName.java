@@ -1,6 +1,5 @@
 package gr.aueb.ds.music.framework.model.dto;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 public class ArtistName implements MusicData<ArtistName> {

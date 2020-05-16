@@ -8,6 +8,7 @@ import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.NodeDetails;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
+import gr.aueb.ds.music.framework.model.enums.BrokerIndicator;
 import gr.aueb.ds.music.framework.model.network.Connection;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Consumer;
@@ -28,11 +29,6 @@ public class BrokerImplementation extends NodeAbstractImplementation implements 
 
     // Connection to Publisher
     private transient Connection publisherConnection;
-
-    public enum BrokerIndicator {
-        TO_ADD,
-        TO_DELETE;
-    }
 
     private BrokerIndicator brokerIndicator;
 

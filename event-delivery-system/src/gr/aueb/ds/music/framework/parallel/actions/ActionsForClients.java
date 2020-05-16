@@ -5,11 +5,10 @@ import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.MusicData;
 import gr.aueb.ds.music.framework.model.dto.Value;
+import gr.aueb.ds.music.framework.model.enums.NodeType;
 import gr.aueb.ds.music.framework.model.network.ObjectOverNetwork;
 import gr.aueb.ds.music.framework.model.network.Ping;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
-import gr.aueb.ds.music.framework.nodes.api.Consumer;
-import gr.aueb.ds.music.framework.nodes.api.Node;
 import gr.aueb.ds.music.framework.nodes.api.Publisher;
 import gr.aueb.ds.music.framework.parallel.actions.network.ActionForLiveness;
 import gr.aueb.ds.music.framework.parallel.actions.node.Action;
@@ -17,6 +16,7 @@ import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForBrokers;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForConsumers;
 import gr.aueb.ds.music.framework.parallel.actions.node.ActionsForPublishers;
 import gr.aueb.ds.music.framework.parallel.actions.request.*;
+import gr.aueb.ds.music.framework.requests.NodeRequest;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -52,9 +52,9 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
             Object receivedObject = this.objectInputStream.readObject();
 
             // Node Actions
-            if (receivedObject instanceof Node) {
-                Node node = (Node) receivedObject;
-                manageMessageFromNode(node);
+            if (receivedObject instanceof NodeRequest) {
+                NodeRequest nodeRequest = (NodeRequest) receivedObject;
+                manageMessageFromNode(nodeRequest);
             }
             // Network Actions
             else if (receivedObject instanceof ObjectOverNetwork) {
@@ -72,22 +72,18 @@ public class ActionsForClients extends ActionImplementation implements Runnable 
         }
     }
 
-    private void manageMessageFromNode(Node node) {
-        if (node instanceof Broker) {
-            Action<Broker> brokerAction = new ActionsForBrokers(this);
-            Broker clientBroker = (Broker) node;
+    private void manageMessageFromNode(NodeRequest nodeRequest) {
+        NodeType nodeType = nodeRequest.getNodeType();
 
-            brokerAction.act(clientBroker);
-        } else if (node instanceof Consumer) {
-            Action<Consumer> consumerAction = new ActionsForConsumers(this);
-            Consumer consumer = (Consumer) node;
-
-            consumerAction.act(consumer);
-        } else if (node instanceof Publisher) {
-            Action<Publisher> publisherAction = new ActionsForPublishers(this);
-            Publisher publisher = (Publisher) node;
-
-            publisherAction.act(publisher);
+        if (nodeType.equals(NodeType.BROKER)) {
+            Action<NodeRequest> brokerAction = new ActionsForBrokers(this);
+            brokerAction.act(nodeRequest);
+        } else if (nodeType.equals(NodeType.CONSUMER)) {
+            Action<NodeRequest> consumerAction = new ActionsForConsumers(this);
+            consumerAction.act(nodeRequest);
+        } else if (nodeType.equals(NodeType.PUBLISHER)) {
+            Action<NodeRequest> publisherAction = new ActionsForPublishers(this);
+            publisherAction.act(nodeRequest);
         }
     }
 

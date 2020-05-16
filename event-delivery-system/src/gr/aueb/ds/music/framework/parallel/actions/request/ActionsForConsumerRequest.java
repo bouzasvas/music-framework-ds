@@ -4,6 +4,7 @@ import gr.aueb.ds.music.framework.error.PublisherNotFoundException;
 import gr.aueb.ds.music.framework.helper.HashingHelper;
 import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
+import gr.aueb.ds.music.framework.model.NodeDetails;
 import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
@@ -12,7 +13,6 @@ import gr.aueb.ds.music.framework.parallel.actions.ActionImplementation;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class ActionsForConsumerRequest extends ActionImplementation implements RequestAction<ArtistName> {
@@ -45,15 +45,16 @@ public class ActionsForConsumerRequest extends ActionImplementation implements R
     }
 
     private void findTheAppropriateBroker(ArtistName request) {
-        Broker suitableBroker = null;
+        NodeDetails suitableBrokerDetails = null;
 
         try {
-            suitableBroker = findHashedBrokerBasedOnArtist(request.getArtistName());
+            Broker suitableBroker = findHashedBrokerBasedOnArtist(request.getArtistName());
+            suitableBrokerDetails = suitableBroker.getNodeDetails();
 
-            this.objectOutputStream.writeObject(suitableBroker);
+            this.objectOutputStream.writeObject(suitableBrokerDetails);
             this.closeConnectionIfBrokerIsNotMaster(suitableBroker);
         } catch (IOException ex) {
-            LogHelper.error(this.broker, String.format(PropertiesHelper.getProperty("consumer.request.artistName.error"), suitableBroker, request));
+//            LogHelper.error(this.broker, String.format(PropertiesHelper.getProperty("consumer.request.artistName.error"), suitableBroker, request));
         }
     }
 

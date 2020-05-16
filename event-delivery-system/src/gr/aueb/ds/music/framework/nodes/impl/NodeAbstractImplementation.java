@@ -5,15 +5,16 @@ import gr.aueb.ds.music.framework.helper.LogHelper;
 import gr.aueb.ds.music.framework.helper.NetworkHelper;
 import gr.aueb.ds.music.framework.helper.PropertiesHelper;
 import gr.aueb.ds.music.framework.model.NodeDetails;
+import gr.aueb.ds.music.framework.model.enums.NodeType;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Node;
 import gr.aueb.ds.music.framework.nodes.api.Publisher;
+import gr.aueb.ds.music.framework.requests.NodeRequest;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.*;
 
@@ -105,7 +106,7 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
-            objectOutputStream.writeObject(this);
+            objectOutputStream.writeObject(createNodeRequest());
             masterBroker = (Broker) objectInputStream.readObject();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -115,6 +116,27 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
 
 //        System.out.println("getMasterBroker() :: Method Returned Master Broker");
         return masterBroker;
+    }
+
+    protected NodeDetails getMasterBrokerDetails() {
+        NodeDetails masterBrokerDetails = null;
+
+        String masterBrokerIp = PropertiesHelper.getProperty("master.broker.ip");
+        int masterBrokerPort = Integer.parseInt(PropertiesHelper.getProperty("master.broker.port"));
+
+        try (Socket socket = NetworkHelper.initConnection(masterBrokerIp, masterBrokerPort)) {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+
+            objectOutputStream.writeObject(createNodeRequest());
+            masterBrokerDetails = (NodeDetails) objectInputStream.readObject();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LogHelper.error(String.format(PropertiesHelper.getProperty("broker.master.node.required"), masterBrokerIp, masterBrokerPort));
+            System.exit(SystemExitCodes.MASTER_NOT_FOUND_ERROR.getCode());
+        }
+
+        return masterBrokerDetails;
     }
 
     // Getters & Setters
@@ -128,6 +150,21 @@ public abstract class NodeAbstractImplementation implements Node, Serializable {
 
     public void setNodeDetails(NodeDetails nodeDetails) {
         this.nodeDetails = nodeDetails;
+    }
+
+    // Helper
+    private NodeRequest createNodeRequest() {
+        NodeRequest nodeRequest = new NodeRequest(NodeType.mapNodeClassNameToType(this.getClass()), this.getNodeDetails());
+        // Set Broker or Publisher field based on who init the Request
+
+        if (NodeType.BROKER.equals(nodeRequest.getNodeType())) {
+            nodeRequest.setBroker((Broker)this);
+        }
+        else if (NodeType.PUBLISHER.equals(nodeRequest.getNodeType())) {
+            nodeRequest.setPublisher((Publisher)this);
+        }
+
+        return nodeRequest;
     }
 
     // Nested TimerTask class
