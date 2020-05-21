@@ -22,4 +22,5 @@
     <string name="dialog_loading">Φόρτωση...</string>
     <string name="async_task_connection_error">Αποτυχία Σύνδεσης!</string>
     <string name="async_task_no_results">Δεν βρέθηκαν τραγούδια</string>
+    <string name="loading_local_files_failed">Δεν είναι δυνατή η ανάκτηση τραγουδιών από την μνήμη της συσκευής!</string>
 </resources>

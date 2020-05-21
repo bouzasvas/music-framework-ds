@@ -38,4 +38,5 @@ dependencies {
 
     // JAR Lib from 1st Phase
     implementation files('libs/music-streaming-framework-api.jar')
+    implementation files('libs\\mp3agic-0.9.1.jar')
 }

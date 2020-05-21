@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.util.Util;
 
 import gr.aueb.ds.music.android.lalapp.R;
 import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
-import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -71,7 +70,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         TrackSelector trackSelector = new DefaultTrackSelector();
 
-        this.player = ExoPlayerFactory.newSimpleInstance(defaultRenderersFactory, trackSelector);
+        this.player = ExoPlayerFactory.newSimpleInstance(PlayerActivity.this, defaultRenderersFactory, trackSelector);
 
         String userAgent = Util.getUserAgent(getApplicationContext(), "Lalapp");
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(), userAgent);
