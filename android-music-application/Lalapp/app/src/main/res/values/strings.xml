@@ -21,4 +21,5 @@
     <string name="dialog_loading">Loading...</string>
     <string name="async_task_connection_error">Connection Failed!</string>
     <string name="async_task_no_results">No Music Tracks found</string>
+    <string name="loading_local_files_failed">Music files could not be retrieved from Device Storage!</string>
 </resources>
