@@ -61,6 +61,15 @@ public class MainActivity extends ParentActivity
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        retrieveDownloadedFiles(switchButton.isChecked());
+        initOnLayoutTouchListener();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void retrieveDownloadedFiles(boolean onlineMode) {
         // When in offline mode retrieve Music Files from Device Storage
         if (!onlineMode) {
