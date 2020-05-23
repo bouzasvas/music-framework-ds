@@ -31,5 +31,8 @@
 
     <string name="menu_home">Search Artists</string>
     <string name="save_sucess">Settings saved!</string>
+    <string name="menu_downloads">Downloads</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
 
 </resources>
