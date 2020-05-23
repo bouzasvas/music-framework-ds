@@ -24,6 +24,7 @@
     <string name="async_task_no_results">Δεν βρέθηκαν τραγούδια</string>
     <string name="loading_local_files_failed">Δεν είναι δυνατή η ανάκτηση τραγουδιών από την μνήμη της συσκευής!</string>
     <string name="nav_header_subtitle">Κατανεμημένα Συστήματα - ΟΠΑ 2020</string>
-    <string name="menu_home" translatable="false">Αναζήτηση Μουσικής</string>
     <string name="save_sucess">Επιτυχής αποθήκευση!</string>
+    <string name="menu_downloads">Η μουσική μου</string>
+    <string name="menu_home">Αναζήτηση Μουσικής</string>
 </resources>
