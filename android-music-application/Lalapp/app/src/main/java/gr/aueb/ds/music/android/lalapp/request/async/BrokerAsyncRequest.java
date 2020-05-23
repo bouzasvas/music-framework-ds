@@ -1,7 +1,6 @@
 package gr.aueb.ds.music.android.lalapp.request.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
@@ -14,12 +13,10 @@ import gr.aueb.ds.music.framework.model.dto.ArtistName;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 import gr.aueb.ds.music.framework.nodes.api.Consumer;
 
-public class BrokerAsyncRequest extends AsyncTask<ArtistName, Void, List<MusicFile>> {
+public class BrokerAsyncRequest extends AsyncTaskWithDialog<ArtistName, Void, List<MusicFile>> {
 
     private AsyncTaskProgress asyncTaskProgress;
     private AsyncTaskError error;
-
-    private Context context;
 
     private Consumer consumer;
 
