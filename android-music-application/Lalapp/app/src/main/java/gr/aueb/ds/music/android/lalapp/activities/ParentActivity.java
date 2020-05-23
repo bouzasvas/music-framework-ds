@@ -12,11 +12,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.util.Locale;
-import java.util.Map;
 
 import gr.aueb.ds.music.android.lalapp.R;
 
-public class ParentActivity extends AppCompatActivity {
+public abstract class ParentActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,10 +91,6 @@ public class ParentActivity extends AppCompatActivity {
 
 
     // Get Application Settings
-    protected Map<String, ?> getAllSettings() {
-        return getApplicationSettings().getAll();
-    }
-
     protected String getApplicationLanguage() {
         SharedPreferences applicationSettings = getApplicationSettings();
 
