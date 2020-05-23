@@ -22,4 +22,14 @@
     <string name="async_task_connection_error">Connection Failed!</string>
     <string name="async_task_no_results">No Music Tracks found</string>
     <string name="loading_local_files_failed">Music files could not be retrieved from Device Storage!</string>
+    <string name="title_activity_main_navigation" translatable="false">MainNavigationActivity</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="nav_header_title" translatable="false">Lala App</string>
+    <string name="nav_header_subtitle">Distributed Systems - AUEB 2020</string>
+    <string name="nav_header_desc" translatable="false">Navigation header</string>
+
+    <string name="menu_home">Search Artists</string>
+    <string name="save_sucess">Settings saved!</string>
+
 </resources>
