@@ -52,12 +52,16 @@ public class AppFileOperations {
         }
     }
 
+    public static File getMusicFileFromName(Context context, String musicFileName) {
+        File applicationFilesFolder = getApplicationFilesFolder(context);
+        return new File(applicationFilesFolder, musicFileName.concat(MP3_FORMAT_SUFFIX));
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static byte[] getFileBytes(Context context, String fileName) throws IOException {
-        File applicationFilesFolder = getApplicationFilesFolder(context);
-        File file = new File(applicationFilesFolder, fileName.concat(MP3_FORMAT_SUFFIX));
+        File musicFile = getMusicFileFromName(context, fileName);
 
-        return Files.readAllBytes(file.toPath());
+        return Files.readAllBytes(musicFile.toPath());
     }
 
     public static void saveMusicFileInDevice(Context context, MusicFile musicFile) throws Exception {
@@ -109,7 +113,7 @@ public class AppFileOperations {
                 .collect(Collectors.toList());
     }
 
-    private static MusicFile mapFileToMusicFile(File file) throws RuntimeException {
+    public static MusicFile mapFileToMusicFile(File file) throws RuntimeException {
         MusicFile mf = new MusicFile();
 
         try {

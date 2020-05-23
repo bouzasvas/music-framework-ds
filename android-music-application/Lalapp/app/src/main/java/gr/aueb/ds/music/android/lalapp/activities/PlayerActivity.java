@@ -1,6 +1,8 @@
 package gr.aueb.ds.music.android.lalapp.activities;
 
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,25 +11,34 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.ByteArrayDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+import java.util.Optional;
+
 import gr.aueb.ds.music.android.lalapp.R;
 import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
+import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public class PlayerActivity extends AppCompatActivity {
 
-    private SimpleExoPlayer player;
+    // This field Holds info for the Song Being Player
+    private MusicFile musicFile;
     private String tmpMusicFileName;
+
+    private SimpleExoPlayer player;
+    private PlayerNotificationManager playerNotificationManager;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -37,14 +48,17 @@ public class PlayerActivity extends AppCompatActivity {
 
         byte[] musicFileBytes = initMusicFile();
         playTrack(musicFileBytes);
+        initPlayerNotificationBar();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        this.player.stop();
-        AppFileOperations.deleteTmpFile(this, this.tmpMusicFileName);
+        // Stop the Player
+        this.player.release();
+        // Stop Notifications
+        this.playerNotificationManager.setPlayer(null);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -53,8 +67,16 @@ public class PlayerActivity extends AppCompatActivity {
         try {
             Intent intent = getIntent();
 
-            this.tmpMusicFileName = (String) intent.getExtras().get("musicFile");
+            this.tmpMusicFileName = Optional
+                    .ofNullable(intent.getExtras())
+                    .map(bundle -> bundle.get("musicFile"))
+                    .map(String::valueOf)
+                    .orElse("");
+            this.musicFile = AppFileOperations.mapFileToMusicFile(AppFileOperations.getMusicFileFromName(this, this.tmpMusicFileName));
             musicFileBytes = AppFileOperations.getFileBytes(this, this.tmpMusicFileName);
+
+            // Delete stored Tmp File
+            AppFileOperations.deleteTmpFile(this, this.tmpMusicFileName);
         }
         catch (Exception ex) {
             // TODO
@@ -85,6 +107,11 @@ public class PlayerActivity extends AppCompatActivity {
         this.player.setPlayWhenReady(true);
     }
 
+    private void initPlayerNotificationBar() {
+        this.playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(this, "Lala App", R.string.app_name, 1, mediaDescriptionAdapter);
+        this.playerNotificationManager.setPlayer(this.player);
+    }
+
     // Helper Methods
     private void attachPlayerToView(SimpleExoPlayer player) {
         PlayerView playerView = (PlayerView) findViewById(R.id.player_view);
@@ -105,4 +132,30 @@ public class PlayerActivity extends AppCompatActivity {
 
         return mediaSource;
     }
+
+    // ExoPlayer Notification Bar
+    private PlayerNotificationManager.MediaDescriptionAdapter mediaDescriptionAdapter = new PlayerNotificationManager.MediaDescriptionAdapter() {
+        @Override
+        public String getCurrentContentTitle(Player player) {
+            String tmpTrackName = PlayerActivity.this.musicFile.getTrackName();
+
+            // Remove _tmp if Exists
+            return tmpTrackName.replace("tmp_", "");
+        }
+
+        @Override
+        public PendingIntent createCurrentContentIntent(Player player) {
+            return null;
+        }
+
+        @Override
+        public String getCurrentContentText(Player player) {
+            return PlayerActivity.this.musicFile.getArtistName();
+        }
+
+        @Override
+        public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+            return null;
+        }
+    };
 }
