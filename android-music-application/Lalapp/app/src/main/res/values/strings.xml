@@ -34,6 +34,8 @@
     <string name="menu_downloads">Downloads</string>
     <string name="downloads_label">Downloaded Tracks in Device</string>
     <string name="download_label_no_tracks">No downloaded Tracks</string>
+    <string name="delete_item_title">Delete Track</string>
+    <string name="delete_item_text">Are you sure?</string>
 
     <!-- TODO: Remove or change this placeholder text -->
 

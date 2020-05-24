@@ -29,4 +29,6 @@
     <string name="menu_home">Αναζήτηση Μουσικής</string>
     <string name="downloads_label">Η αποθηκευμένη Μουσική μου</string>
     <string name="download_label_no_tracks">Δεν βρέθηκαν Τραγούδια</string>
+    <string name="delete_item_title">Διαγραφή Τραγουδιού</string>
+    <string name="delete_item_text">Είστε σίγουροι;</string>
 </resources>
