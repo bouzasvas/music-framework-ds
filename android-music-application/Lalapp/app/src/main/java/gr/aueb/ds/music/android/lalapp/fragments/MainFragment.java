@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Objects;
 
 import gr.aueb.ds.music.android.lalapp.R;
-import gr.aueb.ds.music.android.lalapp.RecyclerItemClickListener;
-import gr.aueb.ds.music.android.lalapp.RecyclerViewAdapter;
 import gr.aueb.ds.music.android.lalapp.common.AppCommon;
 import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 import gr.aueb.ds.music.android.lalapp.helpers.LogHelper;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
+import gr.aueb.ds.music.android.lalapp.recyclerview.adapter.RecyclerViewAdapter;
+import gr.aueb.ds.music.android.lalapp.recyclerview.listeners.RecyclerItemClickListener;
 import gr.aueb.ds.music.android.lalapp.request.async.AsyncTaskError;
 import gr.aueb.ds.music.android.lalapp.request.async.AsyncTaskProgress;
 import gr.aueb.ds.music.android.lalapp.request.async.BrokerAsyncRequest;
@@ -150,7 +150,7 @@ public class MainFragment extends ParentFragment implements RecyclerItemClickLis
         recyclerView = root.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(Objects.requireNonNull(getContext())));
 
-        recyclerView.addOnItemTouchListener(new gr.aueb.ds.music.android.lalapp.RecyclerItemClickListener(Objects.requireNonNull(getContext()), recyclerView, this));
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(Objects.requireNonNull(getContext()), recyclerView, this));
     }
 
     private void initSwitchListener(View root) {

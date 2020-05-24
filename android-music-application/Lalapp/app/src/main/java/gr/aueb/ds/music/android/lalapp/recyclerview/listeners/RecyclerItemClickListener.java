@@ -1,4 +1,4 @@
-package gr.aueb.ds.music.android.lalapp;
+package gr.aueb.ds.music.android.lalapp.recyclerview.listeners;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
