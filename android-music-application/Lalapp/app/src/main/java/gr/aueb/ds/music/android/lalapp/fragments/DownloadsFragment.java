@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Objects;
 
 import gr.aueb.ds.music.android.lalapp.R;
-import gr.aueb.ds.music.android.lalapp.RecyclerItemClickListener;
-import gr.aueb.ds.music.android.lalapp.RecyclerViewAdapter;
 import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
+import gr.aueb.ds.music.android.lalapp.recyclerview.adapter.RecyclerViewAdapter;
+import gr.aueb.ds.music.android.lalapp.recyclerview.listeners.RecyclerItemClickListener;
 import gr.aueb.ds.music.android.lalapp.request.async.OfflineTrackAsyncRequest;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
@@ -50,7 +50,7 @@ public class DownloadsFragment extends Fragment implements RecyclerItemClickList
     private void initRecyclerView(View root) {
         this.recyclerView = root.findViewById(R.id.downloads_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(Objects.requireNonNull(getContext())));
-        recyclerView.addOnItemTouchListener(new gr.aueb.ds.music.android.lalapp.RecyclerItemClickListener(Objects.requireNonNull(getContext()), recyclerView, this));
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(Objects.requireNonNull(getContext()), recyclerView, this));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

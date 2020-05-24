@@ -1,4 +1,4 @@
-package gr.aueb.ds.music.android.lalapp;
+package gr.aueb.ds.music.android.lalapp.recyclerview.adapter;
 
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import gr.aueb.ds.music.android.lalapp.R;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public class RecyclerViewAdapter
