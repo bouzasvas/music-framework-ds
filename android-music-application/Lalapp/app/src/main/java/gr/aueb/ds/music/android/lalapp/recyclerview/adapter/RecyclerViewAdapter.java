@@ -24,7 +24,7 @@ public class RecyclerViewAdapter
     @NonNull
     @Override
     public MusicFileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_view_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_view_track_item, parent, false);
         return new MusicFileViewHolder(v);
     }
 

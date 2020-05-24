@@ -27,4 +27,6 @@
     <string name="save_sucess">Επιτυχής αποθήκευση!</string>
     <string name="menu_downloads">Η μουσική μου</string>
     <string name="menu_home">Αναζήτηση Μουσικής</string>
+    <string name="downloads_label">Η αποθηκευμένη Μουσική μου</string>
+    <string name="download_label_no_tracks">Δεν βρέθηκαν Τραγούδια</string>
 </resources>

@@ -32,6 +32,8 @@
     <string name="menu_home">Search Artists</string>
     <string name="save_sucess">Settings saved!</string>
     <string name="menu_downloads">Downloads</string>
+    <string name="downloads_label">Downloaded Tracks in Device</string>
+    <string name="download_label_no_tracks">No downloaded Tracks</string>
 
     <!-- TODO: Remove or change this placeholder text -->
 
