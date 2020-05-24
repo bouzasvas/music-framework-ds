@@ -1,5 +1,7 @@
 package gr.aueb.ds.music.android.lalapp.fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -120,5 +122,30 @@ public class DownloadsFragment extends Fragment implements RecyclerItemClickList
 
         OfflineTrackAsyncRequest offlineTrackAsyncRequest = new OfflineTrackAsyncRequest(Objects.requireNonNull(getContext()));
         offlineTrackAsyncRequest.execute(mf);
+    }
+
+    @Override
+    public void onItemLongPress(View view, int position) {
+        GenericItem item = this.downloadedMusicItems.get(position);
+
+        if (item instanceof ArtistItem) return;;
+
+        MusicFile mf = ((TrackItem) item).getMusicFile();
+
+        AlertDialog alertDialog = new AlertDialog.Builder(view.getContext()).create();
+        alertDialog.setTitle(getString(R.string.delete_item_title));
+        alertDialog.setMessage(getString(R.string.delete_item_text));
+
+        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            public void onClick(DialogInterface dialog, int which) {
+                AppFileOperations.deleteTmpFile(getContext(), mf.getTrackName());
+
+                // Update View
+                List<MusicFile> downloadedMusic = retrieveDownloads();
+                initRecyclerViewAdapter(downloadedMusic);
+            }
+        });
+        alertDialog.show();
     }
 }
