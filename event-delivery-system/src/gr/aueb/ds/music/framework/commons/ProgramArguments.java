@@ -53,12 +53,28 @@ public class ProgramArguments {
                 // Node Properties
                 List<String> nodeProperties = PROGRAM_ARGUMENTS.get(NODE);
                 nodeProperties.add(arg);
-            }
+        }
         }
     }
 
     public static List<String> getArgument(String arg) {
-        return PROGRAM_ARGUMENTS.getOrDefault(arg, Collections.emptyList());
+        if (isConfigurationArgument(arg) && !isNodeArgument(arg)) {
+            return ProgramArguments.getConfigurationArgValue(arg);
+        }
+        else {
+            return PROGRAM_ARGUMENTS.getOrDefault(arg, Collections.emptyList());
+        }
+    }
+
+    private static List<String> getConfigurationArgValue(String arg) {
+        return PROGRAM_ARGUMENTS
+                .keySet()
+                .stream()
+                .filter(key -> key.startsWith(arg))
+                .findFirst()
+                .map(value -> value.substring(value.indexOf("=")+1))
+                .map(Collections::singletonList)
+                .orElse(Collections.emptyList());
     }
 
     public static boolean containsNodeConfiguration() {
