@@ -20,15 +20,15 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.ByteArrayDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
-import java.util.Optional;
-
 import gr.aueb.ds.music.android.lalapp.R;
+import gr.aueb.ds.music.android.lalapp.common.AppCommon;
 import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
+import gr.aueb.ds.music.android.lalapp.player.DataSourceProducer;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public class PlayerActivity extends AppCompatActivity {
@@ -36,6 +36,8 @@ public class PlayerActivity extends AppCompatActivity {
     // This field Holds info for the Song Being Player
     private MusicFile musicFile;
     private String tmpMusicFileName;
+
+    private byte[] musicFileBytes;
 
     private SimpleExoPlayer player;
     private PlayerNotificationManager playerNotificationManager;
@@ -46,8 +48,8 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        byte[] musicFileBytes = initMusicFile();
-        playTrack(musicFileBytes);
+        initMusicFile();
+        playTrack();
         initPlayerNotificationBar();
     }
 
@@ -62,30 +64,32 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private byte[] initMusicFile() {
-        byte[] musicFileBytes = null;
+    private void initMusicFile() {
         try {
             Intent intent = getIntent();
 
-            this.tmpMusicFileName = Optional
-                    .ofNullable(intent.getExtras())
-                    .map(bundle -> bundle.get("musicFile"))
-                    .map(String::valueOf)
-                    .orElse("");
-            this.musicFile = AppFileOperations.mapFileToMusicFile(AppFileOperations.getMusicFileFromName(this, this.tmpMusicFileName));
-            musicFileBytes = AppFileOperations.getFileBytes(this, this.tmpMusicFileName);
+            // Read Data from Intent
+            this.tmpMusicFileName = AppCommon.readDataFromIntent(intent, "musicFile");
+            Boolean onlineMode = AppCommon.readDataFromIntent(intent, "onlineMode");
+
+            // If offline mode read file from Device Storage
+            if (onlineMode == null || !onlineMode) {
+                this.musicFile = AppFileOperations.mapFileToMusicFile(AppFileOperations.getMusicFileFromName(this, this.tmpMusicFileName));
+                this.musicFileBytes = AppFileOperations.getFileBytes(this, this.tmpMusicFileName);
+            }
+            else if (onlineMode) {
+//                this.musicFileBytesStream
+            }
 
             // Delete stored Tmp File
             AppFileOperations.deleteTmpFile(this, this.tmpMusicFileName);
         }
         catch (Exception ex) {
-            // TODO
+            Log.e(PlayerActivity.class.getSimpleName(), "initMusicFile", ex);
         }
-
-        return musicFileBytes;
     }
 
-    private void playTrack(byte[] musicFileBytes) {
+    private void playTrack() {
         DefaultRenderersFactory defaultRenderersFactory = new DefaultRenderersFactory(
                 getApplicationContext(), null, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
         );
@@ -98,7 +102,7 @@ public class PlayerActivity extends AppCompatActivity {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(), userAgent);
 
         // This is the MediaSource representing the media to be played.
-        MediaSource musicSource = createMediaSourceFromByteArray(musicFileBytes);
+        MediaSource musicSource = createMediaSource();
 
         // Prepare the player with the source.
         this.player.prepare(musicSource);
@@ -118,14 +122,9 @@ public class PlayerActivity extends AppCompatActivity {
         playerView.setPlayer(player);
     }
 
-    private MediaSource createMediaSourceFromByteArray(byte[] data) {
-        ByteArrayDataSource byteArrayDataSource = new ByteArrayDataSource(data);
-        DataSource.Factory factory = new DataSource.Factory() {
-            @Override
-            public DataSource createDataSource() {
-                return byteArrayDataSource;
-            }
-        };
+    private MediaSource createMediaSource() {
+        DataSource mediaDataSource = DataSourceProducer.createDataSource(this.musicFileBytes);
+        DataSource.Factory factory = () -> mediaDataSource;
         MediaSource mediaSource = new ExtractorMediaSource.Factory(factory)
                 .setExtractorsFactory(new DefaultExtractorsFactory())
                 .createMediaSource(Uri.EMPTY);
@@ -140,7 +139,7 @@ public class PlayerActivity extends AppCompatActivity {
             String tmpTrackName = PlayerActivity.this.musicFile.getTrackName();
 
             // Remove _tmp if Exists
-            return tmpTrackName.replace("tmp_", "");
+            return tmpTrackName.replace("tmp_", "").replace("_chunk1", "");
         }
 
         @Override
