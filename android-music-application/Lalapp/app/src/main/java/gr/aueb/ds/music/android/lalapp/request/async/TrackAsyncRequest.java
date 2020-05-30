@@ -39,10 +39,10 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
             /* TODO -- Implement Chucks Task
 
                     1. Save each Chunk in Device Storage using publishProgress & Implement onProgressUpdate
-                        which will save the file
-                    2. After 1st chunk is saved PlayerActivity starts playing 1st Chunk
-                    3. PlayerActivity will add each chunk in ConcatenatedMediaSource Object until last chuck is received
-                    4. onPostExecute should update PlayerActivity about number of Chunks
+                        which will save the file and update the ConcatenatedMediaSource of PlayerActivity
+                        (see WeakReference<Activity>)
+                    2. onPostExecute delete tmp files
+
              */
 
             List<MusicFile> musicFilesChunks = this.consumer.getMusicFileChunks(musicFileRequest);
