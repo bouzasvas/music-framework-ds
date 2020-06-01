@@ -4,10 +4,14 @@ import android.content.Context;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import gr.aueb.ds.music.android.lalapp.R;
+import gr.aueb.ds.music.android.lalapp.activities.PlayerActivity;
+import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
+import gr.aueb.ds.music.android.lalapp.player.DataSourceProducer;
 import gr.aueb.ds.music.android.lalapp.request.ConsumerImplementation;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 import gr.aueb.ds.music.framework.model.dto.Value;
@@ -15,12 +19,15 @@ import gr.aueb.ds.music.framework.nodes.api.Consumer;
 
 public class TrackAsyncRequest extends MusicFilesManipulationAsync {
 
+    public static WeakReference<PlayerActivity> player;
+
     private ConsumerImplementation consumer;
     private boolean onlineMode;
 
     public TrackAsyncRequest(Context context, Consumer consumer, boolean onlineMode) {
         super(context);
 
+        TrackAsyncRequest.player = null;
         this.consumer = (ConsumerImplementation) consumer;
         this.onlineMode = onlineMode;
     }
@@ -45,11 +52,37 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
 
              */
 
-            List<MusicFile> musicFilesChunks = this.consumer.getMusicFileChunks(musicFileRequest);
-            musicFile = mergeChunks(musicFilesChunks);
+            int chunkNo = 1;
+
+            MusicFile mfChunk;
+            while ((mfChunk = this.consumer.getMusicFileChunk(musicFileRequest, chunkNo)) != null) {
+                try {
+                    AppFileOperations.saveMusicFileInDevice(this.context, mfChunk);
+                    chunkNo++;
+
+                    publishProgress(mfChunk);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         return musicFile;
+    }
+
+    @Override
+    protected void onProgressUpdate(MusicFile... values) {
+        super.onProgressUpdate(values);
+
+        MusicFile mf = values[0];
+        boolean firstChunk = mf.getTrackName().endsWith("_chunk1");
+
+        if (firstChunk) {
+            this.playTrackInPlayerActivity(true, mf);
+        }
+        else {
+            player.get().addMediaSource(DataSourceProducer.createMediaSource(context, mf.getTrackName()));
+        }
     }
 
     @Override
@@ -60,7 +93,7 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
             this.saveFileInDevice(musicFile);
             NotificationsHelper.showToastNotification(context, context.getString(R.string.track_downloaded), musicFile.getTrackName());
         } else {
-            this.playTrackInPlayerActivity(musicFile);
+//            this.playTrackInPlayerActivity(musicFile);
         }
     }
 
