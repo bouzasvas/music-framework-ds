@@ -10,20 +10,18 @@ import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
-public abstract class MusicFilesManipulationAsync extends AsyncTaskWithDialog<MusicFile, Void, MusicFile> {
+public abstract class MusicFilesManipulationAsync extends AsyncTaskWithDialog<MusicFile, MusicFile, MusicFile> {
 
 
     public MusicFilesManipulationAsync(Context context) {
         this.context = context;
     }
 
-    protected void playTrackInPlayerActivity(MusicFile musicFile) {
-        musicFile.setTrackName("tmp_" + musicFile.getTrackName());
-        saveFileInDevice(musicFile);
-
+    protected void playTrackInPlayerActivity(boolean onlineMode, MusicFile musicFile) {
         Intent playerActivityIntent = new Intent(context, PlayerActivity.class);
         playerActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         playerActivityIntent.putExtra("musicFile", musicFile.getTrackName());
+        playerActivityIntent.putExtra("onlineMode", onlineMode);
 
         context.startActivity(playerActivityIntent);
     }

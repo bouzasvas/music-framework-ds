@@ -3,7 +3,6 @@ package gr.aueb.ds.music.android.lalapp.activities;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -13,22 +12,22 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
+
+import java.lang.ref.WeakReference;
+import java.util.Optional;
 
 import gr.aueb.ds.music.android.lalapp.R;
 import gr.aueb.ds.music.android.lalapp.common.AppCommon;
 import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 import gr.aueb.ds.music.android.lalapp.player.DataSourceProducer;
+import gr.aueb.ds.music.android.lalapp.request.async.TrackAsyncRequest;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public class PlayerActivity extends AppCompatActivity {
@@ -36,10 +35,10 @@ public class PlayerActivity extends AppCompatActivity {
     // This field Holds info for the Song Being Player
     private MusicFile musicFile;
     private String tmpMusicFileName;
-
-    private byte[] musicFileBytes;
+    private boolean onlineMode = false;
 
     private SimpleExoPlayer player;
+    private ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource();
     private PlayerNotificationManager playerNotificationManager;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -70,25 +69,22 @@ public class PlayerActivity extends AppCompatActivity {
 
             // Read Data from Intent
             this.tmpMusicFileName = AppCommon.readDataFromIntent(intent, "musicFile");
-            Boolean onlineMode = AppCommon.readDataFromIntent(intent, "onlineMode");
+            this.onlineMode = Optional
+                    .ofNullable(AppCommon.readDataFromIntent(intent, "onlineMode"))
+                    .map(v -> (Boolean) v)
+                    .orElse(false);
 
-            // If offline mode read file from Device Storage
-            if (onlineMode == null || !onlineMode) {
-                this.musicFile = AppFileOperations.mapFileToMusicFile(AppFileOperations.getMusicFileFromName(this, this.tmpMusicFileName));
-                this.musicFileBytes = AppFileOperations.getFileBytes(this, this.tmpMusicFileName);
-            }
-            else if (onlineMode) {
-//                this.musicFileBytesStream
-            }
+            if (onlineMode) TrackAsyncRequest.player = new WeakReference<>(this);
+            this.musicFile = AppFileOperations.mapFileToMusicFile(AppFileOperations.getMusicFileFromName(this, this.tmpMusicFileName));
 
-            // Delete stored Tmp File
-            AppFileOperations.deleteTmpFile(this, this.tmpMusicFileName);
-        }
-        catch (Exception ex) {
+            // TODO -- Delete stored Tmp File
+//            AppFileOperations.deleteTmpFile(this, this.tmpMusicFileName);
+        } catch (Exception ex) {
             Log.e(PlayerActivity.class.getSimpleName(), "initMusicFile", ex);
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void playTrack() {
         DefaultRenderersFactory defaultRenderersFactory = new DefaultRenderersFactory(
                 getApplicationContext(), null, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
@@ -98,14 +94,12 @@ public class PlayerActivity extends AppCompatActivity {
 
         this.player = ExoPlayerFactory.newSimpleInstance(PlayerActivity.this, defaultRenderersFactory, trackSelector);
 
-        String userAgent = Util.getUserAgent(getApplicationContext(), "Lalapp");
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(), userAgent);
-
         // This is the MediaSource representing the media to be played.
-        MediaSource musicSource = createMediaSource();
+        MediaSource musicSource = DataSourceProducer.createMediaSource(this, this.tmpMusicFileName);
+        mediaSource.addMediaSource(musicSource);
 
         // Prepare the player with the source.
-        this.player.prepare(musicSource);
+        this.player.prepare(mediaSource);
 
         attachPlayerToView(player);
         this.player.setPlayWhenReady(true);
@@ -122,14 +116,8 @@ public class PlayerActivity extends AppCompatActivity {
         playerView.setPlayer(player);
     }
 
-    private MediaSource createMediaSource() {
-        DataSource mediaDataSource = DataSourceProducer.createDataSource(this.musicFileBytes);
-        DataSource.Factory factory = () -> mediaDataSource;
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(factory)
-                .setExtractorsFactory(new DefaultExtractorsFactory())
-                .createMediaSource(Uri.EMPTY);
-
-        return mediaSource;
+    public void addMediaSource(MediaSource mediaSource) {
+        this.mediaSource.addMediaSource(mediaSource);
     }
 
     // ExoPlayer Notification Bar

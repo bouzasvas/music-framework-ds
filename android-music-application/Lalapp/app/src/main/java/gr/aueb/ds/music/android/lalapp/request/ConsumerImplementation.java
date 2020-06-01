@@ -115,26 +115,24 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 
     }
 
-    public List<MusicFile> getMusicFileChunks(Value value) {
-        int chunkNo = 1;
+    public MusicFile getMusicFileChunk(Value value, int chunkNo) {
+        MusicFile musicFile = null;
 
-        List<MusicFile> musicFileChunks = new ArrayList<>();
         try {
-            // Do Request and Retrieve Chunks one by one
-            MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
-            musicFile.setTrackName(musicFile.getTrackName().concat("_chunk" + chunkNo++));
-
-            musicFileChunks.add(musicFile);
-            while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
-                musicFile.setTrackName(musicFile.getTrackName().concat("_chunk" + chunkNo++));
-
-                musicFileChunks.add(musicFile);
+            if (chunkNo == 1) {
+                // Do Request and Retrieve Chunks one by one
+                musicFile = NetworkHelper.doObjectRequest(this.connection, value);
             }
+            else {
+                musicFile = (MusicFile) this.connection.getIs().readObject();
+            }
+
+            if (musicFile != null) musicFile.setTrackName(musicFile.getTrackName().concat("_chunk" + chunkNo));
         } catch (IOException | ClassNotFoundException ex) {
             // TODO
         }
 
-        return musicFileChunks;
+        return musicFile;
     }
 
     private List<byte[]> retrieveChunksOfMusicFile(Value value) throws Exception {

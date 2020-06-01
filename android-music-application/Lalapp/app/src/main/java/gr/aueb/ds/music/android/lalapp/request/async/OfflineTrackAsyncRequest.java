@@ -32,6 +32,6 @@ public class OfflineTrackAsyncRequest extends MusicFilesManipulationAsync {
     @Override
     protected void onPostExecute(MusicFile musicFile) {
         super.onPostExecute(musicFile);
-        this.playTrackInPlayerActivity(musicFile);
+        this.playTrackInPlayerActivity(false, musicFile);
     }
 }
