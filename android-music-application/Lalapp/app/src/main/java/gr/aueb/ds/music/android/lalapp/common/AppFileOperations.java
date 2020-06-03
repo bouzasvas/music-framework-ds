@@ -24,7 +24,7 @@ import gr.aueb.ds.music.framework.model.dto.MusicFile;
 public class AppFileOperations {
 
     private static final String CHUNK_SUFFIX = "_chunk";
-    private static final String MP3_FORMAT_SUFFIX = ".mp3";
+    public static final String MP3_FORMAT_SUFFIX = ".mp3";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static List<MusicFile> getDownloadedFiles(Context context) throws Exception {
@@ -100,7 +100,7 @@ public class AppFileOperations {
         file.delete();
     }
 
-    private static File getApplicationFilesFolder(Context context) {
+    public static File getApplicationFilesFolder(Context context) {
         return context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
     }
 
