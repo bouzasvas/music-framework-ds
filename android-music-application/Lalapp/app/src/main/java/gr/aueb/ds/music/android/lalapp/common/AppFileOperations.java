@@ -23,6 +23,7 @@ import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public class AppFileOperations {
 
+    private static final String CHUNK_SUFFIX = "_chunk";
     private static final String MP3_FORMAT_SUFFIX = ".mp3";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -73,6 +74,23 @@ public class AppFileOperations {
         } catch (IOException ex) {
             Log.e("AppFileOperations", "sendMusicFileInDevice: ", ex);
             throw new Exception(ex);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static void deleteChunks(Context context) {
+        File musicFilesDir = getApplicationFilesFolder(context);
+
+        try {
+            Files.walk(musicFilesDir.toPath())
+                    .map(Path::toFile)
+                    .map(File::getName)
+                    .filter(mf -> mf.contains(CHUNK_SUFFIX))
+                    .map(mf -> mf.substring(0, mf.indexOf(MP3_FORMAT_SUFFIX)))
+                    .forEach(mf -> deleteTmpFile(context, mf));
+        }
+        catch (IOException ex) {
+            Log.e(AppFileOperations.class.getSimpleName(), "deleteChunks", ex);
         }
     }
 
@@ -132,6 +150,19 @@ public class AppFileOperations {
         }
 
         return mf;
+    }
+
+    public static void copyMp3FileMetadata(File src, File dst) throws RuntimeException {
+        try {
+            Mp3File mp3FileSrc = new Mp3File(src);
+            Mp3File mp3FileDst = new Mp3File(dst);
+
+            mp3FileDst.setId3v1Tag(mp3FileSrc.getId3v1Tag());
+            mp3FileDst.save(dst.getAbsolutePath());
+        } catch (Exception ex) {
+            Log.e("AppFileOperations", "getMp3File: ", ex);
+            throw new RuntimeException(ex);
+        }
     }
 
     private static ID3v1 getRightId3Tag(Mp3File song) {

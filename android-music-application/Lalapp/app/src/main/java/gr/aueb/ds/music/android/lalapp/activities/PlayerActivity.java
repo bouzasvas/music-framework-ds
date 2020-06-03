@@ -53,8 +53,12 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     @Override
+    @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onDestroy() {
         super.onDestroy();
+
+        // Delete Chunks from Storage
+        AppFileOperations.deleteChunks(this);
 
         // Stop the Player
         this.player.release();
@@ -76,9 +80,6 @@ public class PlayerActivity extends AppCompatActivity {
 
             if (onlineMode) TrackAsyncRequest.player = new WeakReference<>(this);
             this.musicFile = AppFileOperations.mapFileToMusicFile(AppFileOperations.getMusicFileFromName(this, this.tmpMusicFileName));
-
-            // TODO -- Delete stored Tmp File
-//            AppFileOperations.deleteTmpFile(this, this.tmpMusicFileName);
         } catch (Exception ex) {
             Log.e(PlayerActivity.class.getSimpleName(), "initMusicFile", ex);
         }

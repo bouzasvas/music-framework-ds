@@ -1,19 +1,23 @@
 package gr.aueb.ds.music.android.lalapp.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 
 import java.util.Objects;
 
 import gr.aueb.ds.music.android.lalapp.R;
+import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 
 public class SplashScreen extends AppCompatActivity {
 
     private static final int TIMEOUT_SECS = 3000;
 
     @Override
+    @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -21,6 +25,7 @@ public class SplashScreen extends AppCompatActivity {
         Objects.requireNonNull(this.getSupportActionBar()).hide();
 
         setContentView(R.layout.activity_splash_screen);
+        AppFileOperations.deleteChunks(this);
         startTimerForMainActivity();
     }
 
