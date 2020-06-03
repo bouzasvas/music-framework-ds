@@ -1,6 +1,5 @@
 package gr.aueb.ds.music.android.lalapp.request;
 
-//import gr.aueb.ds.music.framework.error.FileChunksProcessingException;
 
 import android.util.Log;
 
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +20,6 @@ import gr.aueb.ds.music.framework.model.dto.Value;
 import gr.aueb.ds.music.framework.model.network.Connection;
 import gr.aueb.ds.music.framework.nodes.api.Broker;
 import gr.aueb.ds.music.framework.nodes.api.Consumer;
-
-//import gr.aueb.ds.music.framework.helper.FileSystemHelper;
 
 public class ConsumerImplementation extends NodeAbstractImplementation implements Consumer {
 
@@ -75,21 +71,6 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
 //        this.downloadChunks(value);
     }
 
-    public MusicFile downloadSelectedTrack(Value value) {
-        MusicFile finalMusicFile = null;
-        try {
-            List<byte[]> fileChunks = this.retrieveChunksOfMusicFile(value);
-            finalMusicFile = this.mergeChunks(value, fileChunks);
-
-//            FileSystemHelper.saveMusicFileToFileSystem(finalMusicFile, true);
-        }
-        catch (Exception ex) {
-            Log.e(this.getClass().getSimpleName(), "downloadSelectedTrack", ex);
-        }
-
-        return finalMusicFile;
-    }
-
     @Override
     public void init() {
         // Make the Connection
@@ -135,25 +116,6 @@ public class ConsumerImplementation extends NodeAbstractImplementation implement
         return musicFile;
     }
 
-    private List<byte[]> retrieveChunksOfMusicFile(Value value) throws Exception {
-        List<byte[]> musicFileBytesList = new ArrayList<>();
-
-        try {
-            // Do Request and Retrieve Chunks one by one
-            MusicFile musicFile = NetworkHelper.doObjectRequest(this.connection, value);
-            musicFileBytesList.add(musicFile.getMusicFileExtract());
-
-            while ((musicFile = (MusicFile) this.connection.getIs().readObject()) != null) {
-                musicFileBytesList.add(musicFile.getMusicFileExtract());
-            }
-        } catch (IOException | ClassNotFoundException ex) {
-            throw new Exception("");
-//            throw new FileChunksProcessingException("consumer.get.file.chunks");
-        }
-
-        return musicFileBytesList;
-    }
-//
     private MusicFile mergeChunks(Value value, List<byte[]> musicFileChunks) throws Exception {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
