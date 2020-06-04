@@ -3,11 +3,14 @@ package gr.aueb.ds.music.android.lalapp.player;
 import android.content.Context;
 import android.net.Uri;
 
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.upstream.ByteArrayDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
 
@@ -24,8 +27,27 @@ public class DataSourceProducer {
         File mfStorage = AppFileOperations.getMusicFileFromName(context, fileName);
         Uri fileUri = Uri.fromFile(mfStorage);
 
-        return new ExtractorMediaSource.Factory(new DefaultDataSourceFactory(context, "Lalapp"))
-                .createMediaSource(fileUri);
+        // Create a data source factory.
+        DataSource.Factory dataSourceFactory =
+                new DefaultDataSourceFactory(context, Util.getUserAgent(context, "app-name"));
+
+        DefaultExtractorsFactory extractorsFactory =
+                new DefaultExtractorsFactory().setConstantBitrateSeekingEnabled(true).setMp3ExtractorFlags(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
+// Create a progressive media source pointing to a stream uri.
+//        MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
+//                .createMediaSource(fileUri);
+
+        DefaultDataSourceFactory factory = new DefaultDataSourceFactory(context, Util.getUserAgent(context, "app-name"));
+
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(factory).createMediaSource(fileUri);
+
+//        return new ProgressiveMediaSource.Factory(
+//                new ResolvingDataSource.Factory(
+//                        new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "app-name")),
+//                        // Provide just-in-time URI resolution logic.
+//                        (DataSpec dataSpec)-> dataSpec.withUri(fileUri)).createDataSource();
+
+        return mediaSource;
     }
 
     public static DataSource createDataSource(byte[] data) {

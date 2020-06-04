@@ -2,21 +2,20 @@ package gr.aueb.ds.music.android.lalapp.request.async;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.Optional;
 
 import gr.aueb.ds.music.android.lalapp.R;
 import gr.aueb.ds.music.android.lalapp.activities.PlayerActivity;
 import gr.aueb.ds.music.android.lalapp.common.AppFileOperations;
 import gr.aueb.ds.music.android.lalapp.helpers.NotificationsHelper;
-import gr.aueb.ds.music.android.lalapp.player.DataSourceProducer;
 import gr.aueb.ds.music.android.lalapp.request.ConsumerImplementation;
 import gr.aueb.ds.music.framework.model.dto.MusicFile;
 import gr.aueb.ds.music.framework.model.dto.Value;
@@ -52,7 +51,7 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
     protected MusicFile doInBackground(MusicFile... musicFiles) {
         MusicFile musicFile = null;
 
-        if (!onlineMode) initFileStream(musicFiles[0]);
+        initFileStream(musicFiles[0]);
 
         Value musicFileRequest = new Value(musicFiles[0]);
         int chunkNo = 1;
@@ -61,7 +60,7 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
         while ((mfChunk = this.consumer.getMusicFileChunk(musicFileRequest, chunkNo)) != null) {
             musicFile = mfChunk;
             try {
-                if (onlineMode) AppFileOperations.saveMusicFileInDevice(this.context, mfChunk);
+//                if (onlineMode) AppFileOperations.saveMusicFileInDevice(this.context, mfChunk);
                 chunkNo++;
 
                 publishProgress(mfChunk);
@@ -79,19 +78,18 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
         super.onProgressUpdate(values);
 
         MusicFile mf = values[0];
-        if (!onlineMode) {
-            saveFileInDevice(mf);
-        }
-        else {
-            playChunk(mf);
-        }
+        saveFileInDevice(mf);
+
+        if (onlineMode) playChunk(mf);
     }
 
     @Override
     protected void onPostExecute(MusicFile musicFile) {
         super.onPostExecute(musicFile);
 
-        if (!onlineMode) {
+        if (true) {
+            closeOfflineStream();
+
             String trackName = musicFile.getTrackName().substring(0, musicFile.getTrackName().indexOf("_"));
             NotificationsHelper.showToastNotification(context, context.getString(R.string.track_downloaded), trackName);
         }
@@ -106,14 +104,19 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
         }
     }
 
+    private void closeOfflineStream() {
+        try {
+            this.fileOutputStream.close();
+        } catch (IOException ex) {
+            Log.e(getClass().getSimpleName(), "closeOfflineStream", ex);
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void playChunk(MusicFile mf) {
         if (isFirstChunk(mf)) {
+            mf.setTrackName(mf.getTrackName().substring(0, mf.getTrackName().indexOf("_")));
             this.playTrackInPlayerActivity(true, mf);
-        } else {
-            Optional
-                    .ofNullable(player)
-                    .ifPresent(player -> player.get().addMediaSource(DataSourceProducer.createMediaSource(context, mf.getTrackName())));
         }
     }
 

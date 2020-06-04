@@ -3,8 +3,9 @@ package gr.aueb.ds.music.android.lalapp.common;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.Mp3File;

@@ -5,8 +5,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -37,7 +38,7 @@ public class PlayerActivity extends AppCompatActivity {
     private String tmpMusicFileName;
     private boolean onlineMode = false;
 
-    private SimpleExoPlayer player;
+    public SimpleExoPlayer player;
     private ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource();
     private PlayerNotificationManager playerNotificationManager;
 
@@ -97,10 +98,10 @@ public class PlayerActivity extends AppCompatActivity {
 
         // This is the MediaSource representing the media to be played.
         MediaSource musicSource = DataSourceProducer.createMediaSource(this, this.tmpMusicFileName);
-        mediaSource.addMediaSource(musicSource);
+//        mediaSource.addMediaSource(musicSource);
 
         // Prepare the player with the source.
-        this.player.prepare(mediaSource);
+        this.player.prepare(musicSource);
 
         attachPlayerToView(player);
         this.player.setPlayWhenReady(true);
@@ -133,7 +134,9 @@ public class PlayerActivity extends AppCompatActivity {
 
         @Override
         public PendingIntent createCurrentContentIntent(Player player) {
-            return null;
+            Intent intent = new Intent(PlayerActivity.this, PlayerActivity.class);
+
+            return PendingIntent.getActivity(PlayerActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         @Override
