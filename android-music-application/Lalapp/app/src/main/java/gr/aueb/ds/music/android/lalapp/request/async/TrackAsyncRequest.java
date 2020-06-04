@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.Optional;
 
 import gr.aueb.ds.music.android.lalapp.R;
 import gr.aueb.ds.music.android.lalapp.activities.PlayerActivity;
@@ -27,8 +28,11 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
 
     private ConsumerImplementation consumer;
 
-    private FileOutputStream fileOutputStream;
+    private File musicFile;
+    private int currentChunk;
     private boolean onlineMode;
+
+    private FileOutputStream fileOutputStream;
 
     public TrackAsyncRequest(Context context, Consumer consumer, boolean onlineMode) {
         super(context);
@@ -39,7 +43,11 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
     }
 
     private void initFileStream(MusicFile mf) {
-        File musicFile = new File(AppFileOperations.getApplicationFilesFolder(context), mf.getTrackName().concat(AppFileOperations.MP3_FORMAT_SUFFIX));
+        String musicFileName = this.onlineMode
+                ? mf.getTrackName().concat("_chunk")
+                : mf.getTrackName();
+
+        this.musicFile = new File(AppFileOperations.getApplicationFilesFolder(context), musicFileName.concat(AppFileOperations.MP3_FORMAT_SUFFIX));
         try {
             this.fileOutputStream = new FileOutputStream(musicFile);
         } catch (FileNotFoundException ex) {
@@ -54,15 +62,13 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
         initFileStream(musicFiles[0]);
 
         Value musicFileRequest = new Value(musicFiles[0]);
-        int chunkNo = 1;
 
+        this.currentChunk = 1;
         MusicFile mfChunk;
-        while ((mfChunk = this.consumer.getMusicFileChunk(musicFileRequest, chunkNo)) != null) {
+        while ((mfChunk = this.consumer.getMusicFileChunk(musicFileRequest, this.currentChunk)) != null) {
             musicFile = mfChunk;
             try {
-//                if (onlineMode) AppFileOperations.saveMusicFileInDevice(this.context, mfChunk);
-                chunkNo++;
-
+                this.currentChunk++;
                 publishProgress(mfChunk);
             } catch (Exception ex) {
                 Log.e(getClass().getSimpleName(), "doInBackground", ex);
@@ -83,16 +89,16 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
         if (onlineMode) playChunk(mf);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onPostExecute(MusicFile musicFile) {
         super.onPostExecute(musicFile);
 
-        if (true) {
-            closeOfflineStream();
+        closeOfflineStream();
+        updatePlayer();
 
-            String trackName = musicFile.getTrackName().substring(0, musicFile.getTrackName().indexOf("_"));
-            NotificationsHelper.showToastNotification(context, context.getString(R.string.track_downloaded), trackName);
-        }
+        String trackName = musicFile.getTrackName().substring(0, musicFile.getTrackName().indexOf("_"));
+        NotificationsHelper.showToastNotification(context, context.getString(R.string.track_downloaded), trackName);
     }
 
     @Override
@@ -110,6 +116,14 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
         } catch (IOException ex) {
             Log.e(getClass().getSimpleName(), "closeOfflineStream", ex);
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void updatePlayer() {
+        Optional
+                .ofNullable(TrackAsyncRequest.player)
+                .map(WeakReference::get)
+                .ifPresent(PlayerActivity::updatePlayer);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

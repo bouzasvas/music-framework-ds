@@ -25,6 +25,8 @@ import gr.aueb.ds.music.framework.model.dto.MusicFile;
 public class AppFileOperations {
 
     private static final String CHUNK_SUFFIX = "_chunk";
+    private static final String TMP_SUFFIX = "_tmp";
+
     public static final String MP3_FORMAT_SUFFIX = ".mp3";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -87,6 +89,7 @@ public class AppFileOperations {
                     .map(Path::toFile)
                     .map(File::getName)
                     .filter(mf -> mf.contains(CHUNK_SUFFIX))
+                    .filter(mf -> mf.contains(TMP_SUFFIX))
                     .map(mf -> mf.substring(0, mf.indexOf(MP3_FORMAT_SUFFIX)))
                     .forEach(mf -> deleteTmpFile(context, mf));
         }

@@ -5,8 +5,8 @@ import android.net.Uri;
 
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.ByteArrayDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -32,22 +32,13 @@ public class DataSourceProducer {
                 new DefaultDataSourceFactory(context, Util.getUserAgent(context, "app-name"));
 
         DefaultExtractorsFactory extractorsFactory =
-                new DefaultExtractorsFactory().setConstantBitrateSeekingEnabled(true).setMp3ExtractorFlags(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
-// Create a progressive media source pointing to a stream uri.
-//        MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
-//                .createMediaSource(fileUri);
+                new DefaultExtractorsFactory()
+                        .setConstantBitrateSeekingEnabled(false)
+                        .setMp3ExtractorFlags(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
 
-        DefaultDataSourceFactory factory = new DefaultDataSourceFactory(context, Util.getUserAgent(context, "app-name"));
-
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(factory).createMediaSource(fileUri);
-
-//        return new ProgressiveMediaSource.Factory(
-//                new ResolvingDataSource.Factory(
-//                        new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "app-name")),
-//                        // Provide just-in-time URI resolution logic.
-//                        (DataSpec dataSpec)-> dataSpec.withUri(fileUri)).createDataSource();
-
-        return mediaSource;
+        // Create a progressive media source pointing to a stream uri.
+        return new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
+                .createMediaSource(fileUri);
     }
 
     public static DataSource createDataSource(byte[] data) {

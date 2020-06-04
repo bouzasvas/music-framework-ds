@@ -9,14 +9,9 @@ import android.os.Bundle;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Log;
@@ -39,7 +34,7 @@ public class PlayerActivity extends AppCompatActivity {
     private boolean onlineMode = false;
 
     public SimpleExoPlayer player;
-    private ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource();
+    private MediaSource mediaSource;
     private PlayerNotificationManager playerNotificationManager;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -88,20 +83,17 @@ public class PlayerActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void playTrack() {
-        DefaultRenderersFactory defaultRenderersFactory = new DefaultRenderersFactory(
-                getApplicationContext(), null, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
-        );
-
-        TrackSelector trackSelector = new DefaultTrackSelector();
-
-        this.player = ExoPlayerFactory.newSimpleInstance(PlayerActivity.this, defaultRenderersFactory, trackSelector);
+        this.player = new SimpleExoPlayer
+                .Builder(PlayerActivity.this)
+                .build();
 
         // This is the MediaSource representing the media to be played.
-        MediaSource musicSource = DataSourceProducer.createMediaSource(this, this.tmpMusicFileName);
-//        mediaSource.addMediaSource(musicSource);
+        this.mediaSource = DataSourceProducer.createMediaSource(this, this.tmpMusicFileName);
 
         // Prepare the player with the source.
-        this.player.prepare(musicSource);
+        this.player.prepare(this.mediaSource);
+
+        TrackAsyncRequest.player = new WeakReference<>(this);
 
         attachPlayerToView(player);
         this.player.setPlayWhenReady(true);
@@ -118,8 +110,8 @@ public class PlayerActivity extends AppCompatActivity {
         playerView.setPlayer(player);
     }
 
-    public void addMediaSource(MediaSource mediaSource) {
-        this.mediaSource.addMediaSource(mediaSource);
+    public void updatePlayer() {
+        this.player.prepare(this.mediaSource, false, false);
     }
 
     // ExoPlayer Notification Bar
