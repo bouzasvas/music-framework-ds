@@ -24,4 +24,9 @@ public abstract class AsyncTaskWithDialog<I, P, O> extends AsyncTask<I, P, O> {
         AppCommon.dismissDialog();
     }
 
+    @Override
+    protected void onCancelled(O o) {
+        super.onCancelled(o);
+        AppCommon.dismissDialog();
+    }
 }

@@ -65,11 +65,11 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
 
         this.currentChunk = 1;
         MusicFile mfChunk;
-        while ((mfChunk = this.consumer.getMusicFileChunk(musicFileRequest, this.currentChunk)) != null) {
+        while ((mfChunk = this.consumer.getMusicFileChunk(musicFileRequest, this.currentChunk)) != null && !isCancelled()) {
             musicFile = mfChunk;
             try {
-                this.currentChunk++;
                 publishProgress(mfChunk);
+                this.currentChunk++;
             } catch (Exception ex) {
                 Log.e(getClass().getSimpleName(), "doInBackground", ex);
             }
@@ -81,6 +81,10 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onProgressUpdate(MusicFile... values) {
+//        if (player != null && !player.get().isActive) {
+//            cancel(false);
+//        }
+
         super.onProgressUpdate(values);
 
         MusicFile mf = values[0];
@@ -94,13 +98,22 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
     protected void onPostExecute(MusicFile musicFile) {
         super.onPostExecute(musicFile);
 
+        if (!onlineMode) {
+            String trackName = musicFile.getTrackName().substring(0, musicFile.getTrackName().indexOf("_"));
+            NotificationsHelper.showToastNotification(context, context.getString(R.string.track_downloaded), trackName);
+        }
+
         closeOfflineStream();
         updatePlayer();
-
-        String trackName = musicFile.getTrackName().substring(0, musicFile.getTrackName().indexOf("_"));
-        NotificationsHelper.showToastNotification(context, context.getString(R.string.track_downloaded), trackName);
     }
 
+    @Override
+    protected void onCancelled(MusicFile o) {
+        super.onCancelled(o);
+        closeOfflineStream();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void saveFileInDevice(MusicFile musicFile) {
         try {
@@ -131,6 +144,10 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
         if (isFirstChunk(mf)) {
             mf.setTrackName(mf.getTrackName().substring(0, mf.getTrackName().length()-1));
             this.playTrackInPlayerActivity(true, mf);
+        }
+
+        if (TrackAsyncRequest.player != null && (this.currentChunk == 3 || this.currentChunk == 20)) {
+            this.updatePlayer();
         }
     }
 

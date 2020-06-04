@@ -28,6 +28,8 @@ import gr.aueb.ds.music.framework.model.dto.MusicFile;
 
 public class PlayerActivity extends AppCompatActivity {
 
+    public boolean isActive = true;
+
     // This field Holds info for the Song Being Player
     private MusicFile musicFile;
     private String tmpMusicFileName;
@@ -43,6 +45,8 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
+        this.isActive = true;
+
         initMusicFile();
         playTrack();
         initPlayerNotificationBar();
@@ -55,6 +59,9 @@ public class PlayerActivity extends AppCompatActivity {
 
         // Delete Chunks from Storage
         AppFileOperations.deleteChunks(this);
+
+        // This Flag is read by AsyncTask
+        this.isActive = false;
 
         // Stop the Player
         this.player.release();
@@ -127,7 +134,6 @@ public class PlayerActivity extends AppCompatActivity {
         @Override
         public PendingIntent createCurrentContentIntent(Player player) {
             Intent intent = new Intent(PlayerActivity.this, PlayerActivity.class);
-
             return PendingIntent.getActivity(PlayerActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
