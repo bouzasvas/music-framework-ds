@@ -129,7 +129,7 @@ public class TrackAsyncRequest extends MusicFilesManipulationAsync {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void playChunk(MusicFile mf) {
         if (isFirstChunk(mf)) {
-            mf.setTrackName(mf.getTrackName().substring(0, mf.getTrackName().indexOf("_")));
+            mf.setTrackName(mf.getTrackName().substring(0, mf.getTrackName().length()-1));
             this.playTrackInPlayerActivity(true, mf);
         }
     }
