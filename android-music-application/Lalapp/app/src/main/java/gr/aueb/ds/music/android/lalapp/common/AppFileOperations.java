@@ -88,8 +88,7 @@ public class AppFileOperations {
             Files.walk(musicFilesDir.toPath())
                     .map(Path::toFile)
                     .map(File::getName)
-                    .filter(mf -> mf.contains(CHUNK_SUFFIX))
-                    .filter(mf -> mf.contains(TMP_SUFFIX))
+                    .filter(mf -> mf.contains(CHUNK_SUFFIX) || mf.contains(TMP_SUFFIX))
                     .map(mf -> mf.substring(0, mf.indexOf(MP3_FORMAT_SUFFIX)))
                     .forEach(mf -> deleteTmpFile(context, mf));
         }
